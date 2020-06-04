@@ -1,9 +1,11 @@
 # Final Project
 Let's implement a great distributed database architecture 'Calvin'.
 
+[Introduction](https://nthu-datalab.github.io/db/labs/introduction-final-project.pdf)
+
 ## Steps
 1. Fork this project
-2. Implement your code under the Calvin directory
+2. Implement your code under the Calvin directory (please follow the basic maven directory hierarchy.)
 3. devise & run some experiments 
 4. Write a report about your implementation and experiments
 5. Push your repo to Gitlab and submit a merge request
