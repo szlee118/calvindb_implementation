@@ -1,14 +1,17 @@
 # Final Project
+
 Let's implement a great distributed database architecture 'Calvin'.
 
 [Introduction](https://nthu-datalab.github.io/db/labs/introduction-final-project.pdf)
 
 ## Steps
+
 1. Fork this project
-2. Implement your code under the Calvin directory (please follow the basic maven directory hierarchy.)
-3. devise & run some experiments 
-4. Write a report about your implementation and experiments
-5. Push your repo to Gitlab and submit a merge request
+2. Implement your code under the `Calvin` directory (please follow the basic maven directory hierarchy.)
+3. Revise the benchmarks (`VanillaBench`) in order to make the benchmarks run on Calvin.
+4. Devise & run some experiments
+5. Write a report about your implementation and experiments
+6. Push your repo to Gitlab and submit a merge request
 
 ## Architecture
 
@@ -31,26 +34,26 @@ Here is the workflow of executing a stored procedure:
 
 In order to evaluate your implementations, we require you to implement at least the following functionalities:
 
-- Group Commnunication
-    - A client-side module to send requests to VanillaComm
-    - A server-side module to receive total-ordered requests
+- Groclient-side module to send requests to VanillaComm
+  - A server-side module to receive total-ordered requests
 - Scheduler
-    - To analyze requests, generate execution plan and dispatch requests to threads.
+  - To analyze requests, generate execution plan and dispatch requests to threads.
 - Metadata
-    - To store data partition information so that other moduels can query data partitions.
+  - To store data partition information so that other moduels can query data partitions.
 - Recovery
-    - To log stored procedure requests
+  - To log stored procedure requests
 - Concurrency
-    - Conservative Locking
+  - Conservative Locking
 - Stored Procedures
-    - An abstract class for VanillaBench to implement detailed transaction logics.
-    - Able to send records to remote nodes
-    - Able to send the result back to clients (VanillaBench)
+  - An abstract class for VanillaBench to implement detailed transaction logics.
+  - Able to send records to remote nodes
+  - Able to send the result back to clients (VanillaBench)
 - Cache
-    - To cache remote records
-    - To retrieve/modify/insert/delete records from/in VanillaCore
+  - To cache remote records
+  - To retrieve/modify/insert/delete records from/in VanillaCore
 
 ## Constraints
+
 Basically, there is no constraint in the final project.
 You can use any api in vanillaComm, vanillaCore, vanillaBench.
 
@@ -64,20 +67,20 @@ The procedure of submission is as following:
 2. Clone the repository you forked
 3. Finish your work and write the report
 4. Commit your work, push your work to GitLab.
-  - Name your report as `[Team Member 1 ID]_[Team Member 2 ID]_final_project_report`
-    - E.g. `102062563_103062528_final_project_report.pdf`
+   - Name your report as `[Team Member 1 ID]_[Team Member 2 ID]_final_project_report`
+     - E.g. `102062563_103062528_final_project_report.pdf`
 5. Open a merge request to the original repository.
-  - Source branch: Your working branch.
-  - Target branch: The branch with your team number. (e.g. `team-1`)
-  - Title: `Team-X Submission` (e.g. `Team-1 Submission`).
+   - Source branch: Your working branch.
+   - Target branch: The branch with your team number. (e.g. `team-1`)
+   - Title: `Team-X Submission` (e.g. `Team-1 Submission`).
 
 **Important: We do not accept late submission.**
 
-
 ## The report
+
 - Explain what you do
 - Experiments
-    - show your benchmark result
+  - show your benchmark result
 
 Note: There is no strict limitation to the length of your report. Generally, a 2~3 pages report with some figures and tables is fine. **Remember to include all the group members' student IDs in your report.**
 
@@ -86,4 +89,5 @@ Note: There is no strict limitation to the length of your report. Generally, a 2
 If we find you copy someone’s code, you will get 0 point for this assignment.
 
 ## Deadline
-Submit your work before 2020/6/22 (Sun.) 23:59:59
+
+Submit your work before 2020/6/22 (Sun.) 23:59:59 (Phase 1).
