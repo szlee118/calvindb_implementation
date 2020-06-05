@@ -34,28 +34,31 @@ Here is the workflow of executing a stored procedure:
 
 In order to evaluate your implementations, we require you to implement at least the following functionalities:
 
-- Groclient-side module to send requests to VanillaComm
-  - A server-side module to receive total-ordered requests
+- Communication
+  - A client-side module to send requests to servers.
+  - A server-side module to send total-ordering requests and receive total-ordered messages and P2p messages.
 - Scheduler
   - To analyze requests, generate execution plan and dispatch requests to threads.
 - Metadata
   - To store data partition information so that other moduels can query data partitions.
 - Recovery
-  - To log stored procedure requests
+  - To log stored procedure requests.
 - Concurrency
   - Conservative Locking
 - Stored Procedures
   - An abstract class for VanillaBench to implement detailed transaction logics.
-  - Able to send records to remote nodes
-  - Able to send the result back to clients (VanillaBench)
+  - Able to send records to remote nodes.
+  - Able to send the result back to clients (VanillaBench).
 - Cache
-  - To cache remote records
-  - To retrieve/modify/insert/delete records from/in VanillaCore
+  - To cache remote records.
+  - To retrieve/modify/insert/delete records from/in VanillaCore.
+
+In addition to the above requirements, you also need to show scalabilty of your system. More specific, you have to run at least one experiment that shows the throughput of the system with 1~3 servers (or more).
 
 ## Constraints
 
 Basically, there is no constraint in the final project.
-You can use any api in vanillaComm, vanillaCore, vanillaBench.
+You can use any api in vanillaComm, vanillaCore, vanillaBench and do any modification you want to them.
 
 Enjoy & have fun
 
