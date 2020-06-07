@@ -93,4 +93,4 @@ If we find you copy someone’s code, you will get 0 point for this assignment.
 
 ## Deadline
 
-Submit your work before 2020/6/22 (Sun.) 23:59:59 (Phase 1).
+Submit your work before 2020/6/21 (Sun.) 23:59:59 (Phase 1).
