@@ -34,6 +34,7 @@ public class ServerTry implements VanillaCommServerListener {
 			public void run() {
 				while (true) {
 					try {
+						//send request to vanillacomm
 						Serializable message = msgQueue.take();
 						server.sendTotalOrderMessage(message);
 					} catch (InterruptedException e) {
@@ -60,6 +61,7 @@ public class ServerTry implements VanillaCommServerListener {
 	@Override
 	public void onReceiveP2pMessage(ProcessType senderType, int senderId, Serializable message) {
 		if (senderType == ProcessType.CLIENT) {
+			//receive request from bench client 
 			try {
 				msgQueue.put(message);
 			} catch (InterruptedException e) {
@@ -70,6 +72,7 @@ public class ServerTry implements VanillaCommServerListener {
 
 	@Override
 	public void onReceiveTotalOrderMessage(long serialNumber, Serializable message) {
+		//send to scheduler
 		System.out.println("Received a total order message: " + message
 				+ ", serial number: " + serialNumber);
 	}
