@@ -16,11 +16,6 @@
 			<artifactId>comm</artifactId>
 			<version>0.4.0-2020-spring</version>
 		</dependency>
-		<dependency>
-			<groupId>org.vanilladb</groupId>
-			<artifactId>bench</artifactId>
-			<version>0.4.0-2020-spring</version>
-		</dependency>
 	</dependencies>
 
 	<build>
