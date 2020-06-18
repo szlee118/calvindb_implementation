@@ -41,6 +41,7 @@ public class CalvinConnection implements VanillaCommClientListener{
 				+ ", message: " + message.toString());
 	}
 	
+	//TODO: may need change
 	public SpResultSet callStoredProc(int pid, Object... pars)
 			throws RemoteException {
 		try {

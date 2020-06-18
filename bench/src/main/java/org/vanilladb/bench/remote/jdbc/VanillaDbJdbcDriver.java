@@ -34,7 +34,7 @@ public class VanillaDbJdbcDriver implements SutDriver {
 	}
 	
 	@Override
-	public SutConnection connectToSut() throws SQLException {
+	public SutConnection connectToSut(Object... args) throws SQLException {
 		return new VanillaDbJdbcConnection(driver.connect(URL, null));
 	}
 }

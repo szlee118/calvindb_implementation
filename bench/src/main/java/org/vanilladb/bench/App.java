@@ -17,6 +17,7 @@ package org.vanilladb.bench;
 
 public class App {
 	
+	public static int nodeId;
 	private static int action;
 	
 	public static void main(String[] args) {
@@ -45,6 +46,7 @@ public class App {
 		
 		try {
 			action = Integer.parseInt(args[0]);
+			nodeId = Integer.parseInt(args[1]);
 		} catch (NumberFormatException e) {
 			throw new IllegalArgumentException(String.format("'%s' is not a number", args[0]));
 		}
