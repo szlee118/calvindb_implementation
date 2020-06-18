@@ -18,8 +18,8 @@ package org.vanilladb.bench.server;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.vanilladb.calvin.server.Calvin;
 import org.vanilladb.core.remote.jdbc.JdbcStartUp;
-import org.vanilladb.core.server.VanillaDb;
 
 public class VanillaDbJdbcStartUp implements SutStartUp {
 	private static Logger logger = Logger.getLogger(VanillaDbJdbcStartUp.class
@@ -29,7 +29,7 @@ public class VanillaDbJdbcStartUp implements SutStartUp {
 		if (logger.isLoggable(Level.INFO))
 			logger.info("initing...");
 
-		VanillaDb.init(args[0]);
+		Calvin.init(args[0], Integer.parseInt(args[1]));
 		if (logger.isLoggable(Level.INFO))
 			logger.info("VanillaBench server ready");
 		try {

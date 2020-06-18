@@ -22,6 +22,7 @@ import org.vanilladb.bench.BenchmarkerParameters;
 import org.vanilladb.bench.server.procedure.BasicStoredProcFactory;
 import org.vanilladb.bench.server.procedure.micro.MicrobenchStoredProcFactory;
 import org.vanilladb.bench.server.procedure.tpcc.TpccStoredProcFactory;
+import org.vanilladb.calvin.server.Calvin;
 import org.vanilladb.core.remote.storedprocedure.SpStartUp;
 import org.vanilladb.core.server.VanillaDb;
 import org.vanilladb.core.sql.storedprocedure.StoredProcedureFactory;
@@ -34,7 +35,8 @@ public class VanillaDbSpStartUp implements SutStartUp {
 		if (logger.isLoggable(Level.INFO))
 			logger.info("initing...");
 		
-		VanillaDb.init(args[0], getStoredProcedureFactory());
+		Calvin.init(args[0], Integer.parseInt(args[1]), getStoredProcedureFactory());
+//		VanillaDb.init(args[0], getStoredProcedureFactory());
 		
 		if (logger.isLoggable(Level.INFO))
 			logger.info("VanillaBench server ready");
