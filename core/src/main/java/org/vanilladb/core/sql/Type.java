@@ -53,6 +53,21 @@ public abstract class Type {
 		throw new UnsupportedOperationException("Unspported SQL type: "
 				+ sqlType);
 	}
+	
+	public static Type newInstance(int sqlType) {
+		switch (sqlType) {
+		case (java.sql.Types.INTEGER):
+			return INTEGER;
+		case (java.sql.Types.BIGINT):
+			return BIGINT;
+		case (java.sql.Types.DOUBLE):
+			return DOUBLE;
+		case (java.sql.Types.VARCHAR):
+			return VARCHAR;
+		}
+		throw new UnsupportedOperationException("Unspported SQL type: "
+				+ sqlType);
+	}
 
 	/**
 	 * Returns the SQL type corresponding to this instance.
