@@ -4,10 +4,13 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.vanilladb.calvin.groupcomm.SPRequest;
 import org.vanilladb.comm.client.VanillaCommClient;
 import org.vanilladb.comm.client.VanillaCommClientListener;
 import org.vanilladb.comm.view.ProcessType;
@@ -20,10 +23,10 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 			.getName());
 	
 	private long currentTxNumStart;
-	private Set<Long> currentTxNums;
 	private int selfId;
 	private VanillaCommClient client;
 	private int count = 0;
+	private Queue<SPRequest> spQueue = new LinkedList<SPRequest>(); 
 //	private Queue<ClientResponse> respQueue = new LinkedList<ClientResponse>();
 //	private Queue<StoredProcedureCall> spcQueue = new LinkedList<StoredProcedureCall>();
 //	private Map<Long, ClientResponse> txnRespMap = new HashMap<Long, ClientResponse>();
@@ -34,7 +37,6 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 		this.client = client;
 		this.selfId = id;
 		new Thread(client).start();
-		currentTxNums = new HashSet<Long>();
 		// wait for all servers to start up
 		try {
 			Thread.sleep(1000);
@@ -67,15 +69,24 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 		// TODO modify to SP request
 		String message = String.format("Request #%d from client %d", count,
 				selfId);
-		client.sendP2pMessage(ProcessType.SERVER, 0, message);
+		SPRequest req =  null;
+		while((req = spQueue.poll()) == null) {
+		}
+		client.sendP2pMessage(ProcessType.SERVER, 0, req);
 	}
 
 	//TODO: may need change
-	public SpResultSet callStoredProc(int pid, Object... pars)
+	//put request to queue and wait for response
+	//rteId -> txnNum
+	public SpResultSet callStoredProc(int rteId, int pid, Object... pars)
 			throws RemoteException {
 		try {
-			StoredProcedure<?> sp = VanillaDb.spFactory().getStroredProcedure(pid);
-			sp.prepare(pars);
+			spQueue.add(new SPRequest(selfId, rteId, pid, pars));
+//			StoredProcedure<?> sp = VanillaDb.spFactory().getStroredProcedure(pid);
+//			sp.prepare(pars);
+			while(true) {
+				
+			}
 			return sp.execute();
 		} catch (Exception e) {
 			e.printStackTrace();

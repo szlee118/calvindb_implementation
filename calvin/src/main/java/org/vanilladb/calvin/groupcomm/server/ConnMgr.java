@@ -99,7 +99,7 @@ public class ConnMgr implements VanillaCommServerListener{
 //	}
 //
 //	public void callStoredProc(int pid, Object... pars) {
-//		StoredProcedureCall[] spcs = { new StoredProcedureCall(myId, pid, pars) };
+//		StoredProcedureCall[] spcs = { new StoredProcedureCall(-1, myId, pid, pars) };
 //		serverAppl.sendTotalOrderRequest(spcs);
 //	}
 //
