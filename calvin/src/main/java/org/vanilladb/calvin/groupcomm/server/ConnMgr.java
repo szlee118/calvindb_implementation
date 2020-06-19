@@ -6,6 +6,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.vanilladb.calvin.groupcomm.SPRequest;
 import org.vanilladb.comm.server.VanillaCommServer;
 import org.vanilladb.comm.server.VanillaCommServerListener;
 import org.vanilladb.comm.view.ProcessType;
@@ -86,7 +87,7 @@ public class ConnMgr implements VanillaCommServerListener{
 
 	@Override
 	public void onReceiveTotalOrderMessage(long serialNumber, Serializable message) {
-		System.out.println("Received a total order message: " + message
+		System.out.println("Received a total order message: " + ((SPRequest)message).getRteId()
 				+ ", serial number: " + serialNumber);
 	}
 	

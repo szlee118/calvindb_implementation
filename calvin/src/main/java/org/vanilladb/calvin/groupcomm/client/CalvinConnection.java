@@ -75,6 +75,7 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 				selfId);
 		SPRequest req =  null;
 		while((req = spQueue.poll()) == null) {
+//			System.out.println("not get spQueue");
 		}
 		client.sendP2pMessage(ProcessType.SERVER, 0, req);
 	}
