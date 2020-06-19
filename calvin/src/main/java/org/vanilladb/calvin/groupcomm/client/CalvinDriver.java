@@ -1,5 +1,7 @@
 package org.vanilladb.calvin.groupcomm.client;
 
+
+
 public class CalvinDriver {
 	private int myId;
 
@@ -8,6 +10,8 @@ public class CalvinDriver {
 	}
 
 	public CalvinConnection init() {
-		return new CalvinConnection(myId);
+		CalvinConnection conn = new CalvinConnection(myId);
+		new Thread(null, conn, "ConnMgr").start();
+		return conn;
 	}
 }

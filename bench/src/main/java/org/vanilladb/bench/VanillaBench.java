@@ -10,6 +10,7 @@ import org.vanilladb.bench.benchmarks.tpcc.TpccBenchmark;
 import org.vanilladb.bench.remote.SutConnection;
 import org.vanilladb.bench.remote.SutDriver;
 import org.vanilladb.bench.remote.jdbc.VanillaDbJdbcDriver;
+import org.vanilladb.bench.remote.sp.CalvinSpDriver;
 import org.vanilladb.bench.remote.sp.VanillaDbSpDriver;
 import org.vanilladb.bench.rte.RemoteTerminalEmulator;
 
@@ -31,7 +32,7 @@ public class VanillaBench {
 			logger.info("loading the testbed of the benchmark...");
 
 		try {
-			SutConnection con = getConnection();
+			SutConnection con = getConnection(0);
 			benchmarker.executeLoadingProcedure(con);
 		} catch (SQLException e) {
 			if (logger.isLoggable(Level.SEVERE))
@@ -48,7 +49,7 @@ public class VanillaBench {
 			if (logger.isLoggable(Level.INFO))
 				logger.info("checking the database on the server...");
 
-			SutConnection conn = getConnection();
+			SutConnection conn = getConnection(0);
 			boolean result = benchmarker.executeDatabaseCheckProcedure(conn);
 
 			if (!result) {
@@ -67,7 +68,7 @@ public class VanillaBench {
 			RemoteTerminalEmulator<?>[] emulators = new RemoteTerminalEmulator[rteCount];
 			emulators[0] = benchmarker.createRte(conn, statMgr); // Reuse the connection
 			for (int i = 1; i < emulators.length; i++)
-				emulators[i] = benchmarker.createRte(getConnection(), statMgr);
+				emulators[i] = benchmarker.createRte(getConnection(i), statMgr);
 
 			if (logger.isLoggable(Level.INFO))
 				logger.info("waiting for connections...");
@@ -93,7 +94,7 @@ public class VanillaBench {
 				if (logger.isLoggable(Level.INFO))
 					logger.info("starting the profiler on the server-side");
 
-				benchmarker.startProfilingProcedure(getConnection());
+				benchmarker.startProfilingProcedure(getConnection(emulators.length));
 			}
 
 			if (logger.isLoggable(Level.INFO))
@@ -117,7 +118,7 @@ public class VanillaBench {
 				if (logger.isLoggable(Level.INFO))
 					logger.info("stoping the profiler on the server-side");
 
-				benchmarker.stopProfilingProcedure(getConnection());
+				benchmarker.stopProfilingProcedure(getConnection(emulators.length));
 			}
 
 			// TODO: Do we need to 'join' ?
@@ -145,7 +146,7 @@ public class VanillaBench {
 		case JDBC:
 			return new VanillaDbJdbcDriver();
 		case SP:
-			return new VanillaDbSpDriver();
+			return new CalvinSpDriver();
 		}
 		return null;
 	}
@@ -166,7 +167,7 @@ public class VanillaBench {
 		return new StatisticMgr(txnTypes, reportPostfix);
 	}
 	
-	private SutConnection getConnection() throws SQLException {
-		return driver.connectToSut();
+	private SutConnection getConnection(Object... args) throws SQLException {
+		return driver.connectToSut(args);
 	}
 }

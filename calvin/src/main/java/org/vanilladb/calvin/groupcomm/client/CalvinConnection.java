@@ -5,6 +5,8 @@ import java.rmi.RemoteException;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.vanilladb.comm.client.VanillaCommClient;
 import org.vanilladb.comm.client.VanillaCommClientListener;
@@ -13,13 +15,20 @@ import org.vanilladb.core.remote.storedprocedure.SpResultSet;
 import org.vanilladb.core.server.VanillaDb;
 import org.vanilladb.core.sql.storedprocedure.StoredProcedure;
 
-public class CalvinConnection implements VanillaCommClientListener{
+public class CalvinConnection implements VanillaCommClientListener, Runnable{
+	private static Logger logger = Logger.getLogger(CalvinConnection.class
+			.getName());
+	
 	private long currentTxNumStart;
 	private Set<Long> currentTxNums;
 	private int selfId;
 	private VanillaCommClient client;
+	private int count = 0;
 //	private Queue<ClientResponse> respQueue = new LinkedList<ClientResponse>();
-
+//	private Queue<StoredProcedureCall> spcQueue = new LinkedList<StoredProcedureCall>();
+//	private Map<Long, ClientResponse> txnRespMap = new HashMap<Long, ClientResponse>();
+//	private Map<Integer, Long> rteIdtoTxNumMap = new HashMap<Integer, Long>();
+	
 	public CalvinConnection(int id) {
 		VanillaCommClient client = new VanillaCommClient(id, this);
 		this.client = client;
@@ -41,6 +50,26 @@ public class CalvinConnection implements VanillaCommClientListener{
 				+ ", message: " + message.toString());
 	}
 	
+	@Override
+	public void run() {
+		// periodically send batch of requests
+		if (logger.isLoggable(Level.INFO))
+			logger.info("start periodically send batched request...");
+
+		while (true) {
+			sendRequest();
+			count++;
+		}
+
+	}
+	
+	private synchronized void sendRequest() {
+		// TODO modify to SP request
+		String message = String.format("Request #%d from client %d", count,
+				selfId);
+		client.sendP2pMessage(ProcessType.SERVER, 0, message);
+	}
+
 	//TODO: may need change
 	public SpResultSet callStoredProc(int pid, Object... pars)
 			throws RemoteException {
@@ -54,7 +83,7 @@ public class CalvinConnection implements VanillaCommClientListener{
 		}
 	}
 
-	// TODO: batch requests and send NOP call
+	
 
 //	public synchronized SpResultSet callStoredProc(int pid, Object... pars) {
 //		StoredProcedureCall spc = new StoredProcedureCall(myId, pid, pars);
