@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.vanilladb.calvin.groupcomm.server.ConnMgr;
 import org.vanilladb.core.query.planner.Planner;
 import org.vanilladb.core.query.planner.QueryPlanner;
 import org.vanilladb.core.query.planner.UpdatePlanner;
@@ -46,6 +47,8 @@ public class Calvin extends VanillaDb{
 	private static Logger logger = Logger.getLogger(VanillaDb.class.getName());
 	
 	private static int nodeId;
+	
+	private static ConnMgr connMgr;
 
 	public static void init(String dirName, int id) {
 		nodeId = id;
@@ -56,11 +59,11 @@ public class Calvin extends VanillaDb{
 		// initialize core modules
 		VanillaDb.init(dirName);
 		
-		// initialize DD modules
+		// initialize Calvin modules
 //		initCacheMgr();
 //		initPartitionMetaMgr();
 //		initScheduler();
-//		initConnectionMgr(myNodeId);
+		initConnMgr(nodeId);
 //		initDdLogMgr();
 	}
 	
@@ -77,7 +80,11 @@ public class Calvin extends VanillaDb{
 //		initCacheMgr();
 //		initPartitionMetaMgr();
 //		initScheduler();
-//		initConnectionMgr(myNodeId);
+		initConnMgr(nodeId);
 //		initDdLogMgr();
+	}
+	
+	static void initConnMgr(int id) {
+		connMgr = new ConnMgr(id);
 	}
 }
