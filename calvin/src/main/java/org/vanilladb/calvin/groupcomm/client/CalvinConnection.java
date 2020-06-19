@@ -85,72 +85,44 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 
 	
 
-//	public synchronized SpResultSet callStoredProc(int pid, Object... pars) {
-//		StoredProcedureCall spc = new StoredProcedureCall(myId, pid, pars);
-//		StoredProcedureCall[] spcs = { spc };
-//		currentTxNumStart = -1;
-//		clientAppl.sendRequest(spcs);
-//		currentTxNums.clear();
-//		while (true) {
-//			try {
-//				this.wait();
-//				while (respQueue.size() > 0) {
-//					ClientResponse r = respQueue.poll();
-//					if (currentTxNums.remove(r.getTxNum())
-//							&& currentTxNums.isEmpty()) {
-//						return (SpResultSet) r.getResultSet();
-//					}
-//				}
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
+//	public synchronized SpResultSet callStoredProc(int rteId, int pid,
+//			Object... pars) {
+//		// if (testRte == -1) {
+//		// testTime = System.nanoTime();
+//		// testRte = rteId;
+//		// }
+//		// System.out.println("call proc rte:" + rteId);
+//		// block the calling thread until receiving corresponding request
+//		if (!rteIdtoTxNumMap.containsKey(rteId)) {
+//			rteIdtoTxNumMap.put(rteId, -1L);
 //		}
-//	}
-//
-//	public synchronized SpResultSet[] callBatchedStoredProc(int[] pids,
-//			List<Object[]> pars) {
-//		// StoredProcedureCall[]
-//		if (pids.length != pars.size())
-//			throw new IllegalArgumentException(
-//					"the length of pids and paramter list should be the same");
-//		// System.out.println("call batch reqeust ..");
-//
-//		SpResultSet[] responses = new SpResultSet[pids.length];
-//		StoredProcedureCall[] spcs = new StoredProcedureCall[pids.length];
-//		for (int i = 0; i < pids.length; ++i)
-//			spcs[i] = new StoredProcedureCall(myId, pids[i], pars.get(i));
-//
-//		currentTxNumStart = -1;
-//		clientAppl.sendRequest(spcs);
-//		currentTxNums.clear();
-//		while (true) {
-//			try {
-//				this.wait();
-//				while (respQueue.size() > 0) {
-//					ClientResponse r = respQueue.poll();
-//					if (currentTxNums.remove(r.getTxNum())) {
-//						// System.out.println("get resp tx:" + r.getTxNum());
-//						responses[(int) (r.getTxNum() - currentTxNumStart)] = (SpResultSet) r
-//								.getResultSet();
-//						if (currentTxNums.isEmpty())
-//							return responses;
-//					}
+//		StoredProcedureCall spc = new StoredProcedureCall(myId, rteId, pid,
+//				pars);
+//		spcQueue.add(spc);
+//		notifyAll();
+//		ClientResponse cr;
+//		try {
+//			while (true) {
+//				Long txNum = rteIdtoTxNumMap.get(rteId);
+//				if (txnRespMap.containsKey(txNum)) {
+//					cr = txnRespMap.remove(txNum);
+//					break;
 //				}
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
+//				wait();
 //			}
+//			// System.out.println("rte " + rteId + " recv.:");
+//			// if (rteId == testRte2) {
+//			// System.out.println("recv time:"
+//			// + (System.nanoTime() - testTime2));
+//			// testRte2 = -1;
+//			// }
+//			return (SpResultSet) cr.getResultSet();
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//			throw new RuntimeException();
 //		}
 //	}
 
-//	@Override
-//	public synchronized void onRecvClientP2pMessage(P2pMessage p2pmsg) {
-//		// notify the client thread to check the response
-//		ClientResponse c = (ClientResponse) p2pmsg.getMessage();
-//		if (c.getClientId() == myId && currentTxNums.contains(c.getTxNum())) {
-//			respQueue.add(c);
-//			notifyAll();
-//		}
-//	}
 	
 	
 }
