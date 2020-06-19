@@ -32,13 +32,8 @@ import org.vanilladb.core.util.Profiler;
 /**
  * The class that provides system-wide static global values. These values must
  * be initialized by the method {@link #init(String) init} before use. The
- * methods {@link #initFileMgr(String) initFileMgr},
- * {@link #initFileAndLogMgr(String) initFileAndLogMgr},
- * {@link #initTaskMgr() initTaskMgr},
- * {@link #initTxMgr() initTxMgr},
- * {@link #initCatalogMgr(boolean, Transaction) initCatalogMgr},
- * {@link #initStatMgr(Transaction) initStatMgr}, and
- * {@link #initCheckpointingTask() initCheckpointingTask} provide limited
+ * methods {@link #initConnMgr(int) initConnMgr},
+ * provide limited
  * initialization, and are useful for debugging purposes.
  */
 public class Calvin extends VanillaDb{
@@ -84,7 +79,19 @@ public class Calvin extends VanillaDb{
 //		initDdLogMgr();
 	}
 	
+	/**
+	 * initializer 
+	 */
+	
 	static void initConnMgr(int id) {
 		connMgr = new ConnMgr(id);
+	}
+	
+	/**
+	 * getter
+	 */
+	
+	public static ConnMgr connMgr() {
+		return connMgr;
 	}
 }
