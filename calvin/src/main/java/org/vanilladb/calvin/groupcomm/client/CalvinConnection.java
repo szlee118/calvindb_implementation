@@ -3,13 +3,16 @@ package org.vanilladb.calvin.groupcomm.client;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.vanilladb.calvin.groupcomm.ResultFromServer;
 import org.vanilladb.calvin.groupcomm.SPRequest;
 import org.vanilladb.comm.client.VanillaCommClient;
 import org.vanilladb.comm.client.VanillaCommClientListener;
@@ -27,6 +30,7 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 	private VanillaCommClient client;
 	private int count = 0;
 	private Queue<SPRequest> spQueue = new LinkedList<SPRequest>(); 
+	private Map<Long, ResultFromServer> result= new HashMap<Long, ResultFromServer>();
 //	private Queue<ClientResponse> respQueue = new LinkedList<ClientResponse>();
 //	private Queue<StoredProcedureCall> spcQueue = new LinkedList<StoredProcedureCall>();
 //	private Map<Long, ClientResponse> txnRespMap = new HashMap<Long, ClientResponse>();
@@ -85,9 +89,13 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 //			StoredProcedure<?> sp = VanillaDb.spFactory().getStroredProcedure(pid);
 //			sp.prepare(pars);
 			while(true) {
-				
+				if(rteId == 10) {
+					break;
+				}
 			}
-			return sp.execute();
+//			return sp.execute();
+			//TODO need change
+			return result.get(0).getResultSet();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RemoteException(e.getMessage());
