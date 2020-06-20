@@ -22,7 +22,7 @@ public class ConnMgr implements VanillaCommServerListener{
 	private int selfId;
 	private static final BlockingQueue<Serializable> msgQueue =
 			new LinkedBlockingDeque<Serializable>();
-	//private BlockingQueue<TotalOrderMessage> tomQueue = new LinkedBlockingQueue<TotalOrderMessage>();
+//	private BlockingQueue<TotalOrderMessage> tomQueue = new LinkedBlockingQueue<TotalOrderMessage>();
 
 	public ConnMgr(int id) {
 		this.selfId= id;
