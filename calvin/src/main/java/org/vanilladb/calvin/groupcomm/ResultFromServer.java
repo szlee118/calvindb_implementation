@@ -1,5 +1,7 @@
 package org.vanilladb.calvin.groupcomm;
 
+import java.io.Serializable;
+
 import org.vanilladb.core.remote.storedprocedure.SpResultSet;
 
 /**
@@ -7,7 +9,7 @@ import org.vanilladb.core.remote.storedprocedure.SpResultSet;
  * Should be send from server to client 
  *
  */
-public class ResultFromServer {
+public class ResultFromServer implements Serializable{
 
 	private static final long serialVersionUID = 331L;
 

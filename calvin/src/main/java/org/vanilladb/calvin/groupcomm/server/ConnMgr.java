@@ -6,7 +6,9 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.vanilladb.calvin.groupcomm.ResultFromServer;
 import org.vanilladb.calvin.groupcomm.SPRequest;
+import org.vanilladb.calvin.server.Calvin;
 import org.vanilladb.comm.server.VanillaCommServer;
 import org.vanilladb.comm.server.VanillaCommServerListener;
 import org.vanilladb.comm.view.ProcessType;
@@ -51,7 +53,7 @@ public class ConnMgr implements VanillaCommServerListener{
 //							StoredProcedureCall spc = (StoredProcedureCall) tom
 //									.getMessages()[i];
 //							spc.setTxNum(tom.getTotalOrderIdStart() + i);
-//							Calvin.scheduler().schedule(spc);
+							Calvin.scheduler().schedule((SPRequest)message);
 //						}
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -93,10 +95,9 @@ public class ConnMgr implements VanillaCommServerListener{
 	
 	public void sendClientResponse(int clientId, int rteId, long txNum,
 			SpResultSet rs) {
-//		// call the communication module to send the response back to client
-//		P2pMessage p2pmsg = new P2pMessage(new ClientResponse(clientId, rteId,
-//				txNum, rs), clientId, ChannelType.CLIENT);
-//		serverAppl.sendP2pMessage(p2pmsg);
+		// call the communication module to send the response back to client
+		ResultFromServer res = new ResultFromServer(clientId, rteId, txNum, rs);		
+		server.sendP2pMessage(ProcessType.CLIENT, clientId, res);
 	}
 //
 //	public void callStoredProc(int pid, Object... pars) {

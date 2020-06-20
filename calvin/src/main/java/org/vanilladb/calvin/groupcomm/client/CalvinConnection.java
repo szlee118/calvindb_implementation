@@ -30,7 +30,8 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 	private VanillaCommClient client;
 	private int count = 0;
 	private Queue<SPRequest> spQueue = new LinkedList<SPRequest>(); 
-	private Map<Long, ResultFromServer> result= new HashMap<Long, ResultFromServer>();
+	private Map<Long, ResultFromServer> txnToRes= new HashMap<Long, ResultFromServer>();
+	private Map<Integer, Long> rteIdtoTxNum = new HashMap<Integer, Long>();
 //	private Queue<ClientResponse> respQueue = new LinkedList<ClientResponse>();
 //	private Queue<StoredProcedureCall> spcQueue = new LinkedList<StoredProcedureCall>();
 //	private Map<Long, ClientResponse> txnRespMap = new HashMap<Long, ClientResponse>();
@@ -60,7 +61,7 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 	public void run() {
 		// periodically send batch of requests
 		if (logger.isLoggable(Level.INFO))
-			logger.info("start periodically send batched request...");
+			logger.info("start periodically send request...");
 
 		while (true) {
 			sendRequest();
@@ -74,29 +75,33 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 		String message = String.format("Request #%d from client %d", count,
 				selfId);
 		SPRequest req =  null;
-		while((req = spQueue.poll()) == null) {
+		if((req = spQueue.poll()) != null) {
 //			System.out.println("not get spQueue");
+			client.sendP2pMessage(ProcessType.SERVER, 0, req);
 		}
-		client.sendP2pMessage(ProcessType.SERVER, 0, req);
 	}
 
 	//TODO: may need change
 	//put request to queue and wait for response
 	//rteId -> txnNum
-	public SpResultSet callStoredProc(int rteId, int pid, Object... pars)
+	public synchronized SpResultSet callStoredProc(int rteId, int pid, Object... pars)
 			throws RemoteException {
+		if(!rteIdtoTxNum.containsKey(rteId)) {
+			rteIdtoTxNum.put(rteId, -1L);
+		}
+		spQueue.add(new SPRequest(selfId, rteId, pid, pars));
+		notifyAll();
 		try {
-			spQueue.add(new SPRequest(selfId, rteId, pid, pars));
-//			StoredProcedure<?> sp = VanillaDb.spFactory().getStroredProcedure(pid);
-//			sp.prepare(pars);
-			while(true) {
-				if(rteId == 10) {
+			ResultFromServer rs;
+			while (true) {
+				Long txNum = rteIdtoTxNum.get(rteId);
+				if (txnToRes.containsKey(txNum)) {
+					rs = txnToRes.remove(txNum);
 					break;
 				}
+				wait();
 			}
-//			return sp.execute();
-			//TODO need change
-			return result.get(0).getResultSet();
+			return (SpResultSet) rs.getResultSet();
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RemoteException(e.getMessage());
@@ -107,11 +112,6 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 
 //	public synchronized SpResultSet callStoredProc(int rteId, int pid,
 //			Object... pars) {
-//		// if (testRte == -1) {
-//		// testTime = System.nanoTime();
-//		// testRte = rteId;
-//		// }
-//		// System.out.println("call proc rte:" + rteId);
 //		// block the calling thread until receiving corresponding request
 //		if (!rteIdtoTxNumMap.containsKey(rteId)) {
 //			rteIdtoTxNumMap.put(rteId, -1L);
@@ -130,12 +130,6 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 //				}
 //				wait();
 //			}
-//			// System.out.println("rte " + rteId + " recv.:");
-//			// if (rteId == testRte2) {
-//			// System.out.println("recv time:"
-//			// + (System.nanoTime() - testTime2));
-//			// testRte2 = -1;
-//			// }
 //			return (SpResultSet) cr.getResultSet();
 //		} catch (InterruptedException e) {
 //			e.printStackTrace();
