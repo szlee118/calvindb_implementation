@@ -9,6 +9,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.vanilladb.calvin.groupcomm.server.ConnMgr;
+import org.vanilladb.calvin.metadata.MetadataMgr;
 import org.vanilladb.core.query.planner.Planner;
 import org.vanilladb.core.query.planner.QueryPlanner;
 import org.vanilladb.core.query.planner.UpdatePlanner;
@@ -44,6 +45,7 @@ public class Calvin extends VanillaDb{
 	private static int nodeId;
 	
 	private static ConnMgr connMgr;
+	private static MetadataMgr metaMgr;
 
 	public static void init(String dirName, int id) {
 		nodeId = id;
@@ -73,7 +75,7 @@ public class Calvin extends VanillaDb{
 		
 		// initialize DD modules
 //		initCacheMgr();
-//		initPartitionMetaMgr();
+		initMetaMgr();
 //		initScheduler();
 		initConnMgr(nodeId);
 //		initDdLogMgr();
@@ -87,12 +89,20 @@ public class Calvin extends VanillaDb{
 		connMgr = new ConnMgr(id);
 	}
 	
+	static void initMetaMgr() {
+		metaMgr = new MetadataMgr();
+	}
+	
 	/**
 	 * getter
 	 */
 	
 	public static ConnMgr connMgr() {
 		return connMgr;
+	}
+	
+	public static MetadataMgr metaMgr() {
+		return metaMgr;
 	}
 	
 	public static int server_id() {

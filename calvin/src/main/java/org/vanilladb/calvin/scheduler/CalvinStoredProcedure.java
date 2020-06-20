@@ -1,5 +1,6 @@
 package org.vanilladb.calvin.scheduler;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -48,57 +49,54 @@ public abstract class CalvinStoredProcedure<H extends StoredProcedureParamHelper
 		 */
 		protected abstract void executeSql();
 
-		//TODO : Should start from here(got to finish metaMgr now)
-//		private void analyzeRWSet() {
-//			for (RecordKey writeKey: writeKeys) {
-//				int partitionId = Calvin.partitionMetaMgr().getPartition(writeKey);
-//				participants.add(partitionId);
-//				activeParticipants.add(partitionId);
-//				
-//				if (masterId == -1)
-//					masterId = partitionId;
-//			}
-//			
-//			for (RecordKey readKey: readKeys) {
-//				int partitionId = VanillaDdDb.partitionMetaMgr().getPartition(readKey);
-//				participants.add(partitionId);
-//				if (partitionId == serverId)
-//					localReadKeys.add(readKey);
-//					
-//				if (masterId == -1)
-//					masterId = partitionId;
-//			}
-//			if (masterId == -1) {
-//				masterId = 0;
-//				participants.add(serverId);
-//				activeParticipants.add(serverId);
-//			}
-//			participants.add(masterId);
-//			activeParticipants.add(masterId);
-//		}
-//		
-//		/**********************
-//		 * Implemented methods
-//		 **********************/
-//
-//		public void prepare(Object... pars) {
-//			// prepare parameters
-//			paramHelper.prepareParameters(pars);
-//
-//			// create transaction
-//			boolean isReadOnly = paramHelper.isReadOnly();
-//			this.tx = VanillaDdDb.txMgr().newTransaction(
-//					Connection.TRANSACTION_SERIALIZABLE, isReadOnly, txNum);
+		
+		private void analyzeRWSet() {
+			for (RecordKey writeKey: writeKeys) {
+				int partitionId = Calvin.metaMgr().getPartition(writeKey);
+				participants.add(partitionId);
+				activeParticipants.add(partitionId);
+				
+				if (masterId == -1)
+					masterId = partitionId;
+			}
+			
+			for (RecordKey readKey: readKeys) {
+				int partitionId = Calvin.metaMgr().getPartition(readKey);
+				participants.add(partitionId);
+				if (partitionId == serverId)
+					localReadKeys.add(readKey);
+					
+				if (masterId == -1)
+					masterId = partitionId;
+			}
+			if (masterId == -1) {
+				masterId = 0;
+				participants.add(serverId);
+				activeParticipants.add(serverId);
+			}
+			participants.add(masterId);
+			activeParticipants.add(masterId);
+		}
+
+		public void prepare(Object... pars) {
+			// prepare parameters
+			paramHelper.prepareParameters(pars);
+
+			// create transaction
+			boolean isReadOnly = paramHelper.isReadOnly();
+			this.tx = Calvin.txMgr().newTransaction(
+					Connection.TRANSACTION_SERIALIZABLE, isReadOnly, txNum);
+			//TODO : finish recoveryMgr  
 //			this.tx.addLifecycleListener(new DdRecoveryMgr(tx
 //					.getTransactionNumber()));
-//
-//			// prepare keys
-//			prepareKeys();
-//			
-//			// phase 1: read/write set analysis
-//			analyzeRWSet();
-//		}
-//
+
+			prepareKeys();
+			
+			//1. Read/write set analysis
+			analyzeRWSet();
+		}
+		
+		//TODO : Should start from here(got to finish recoveryMgr now)
 //		public void requestConservativeLocks() {
 //			ConservativeOrderedCcMgr ccMgr = (ConservativeOrderedCcMgr) tx
 //					.concurrencyMgr();
