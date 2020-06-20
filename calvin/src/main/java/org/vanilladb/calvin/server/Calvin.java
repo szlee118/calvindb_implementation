@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 
 import org.vanilladb.calvin.groupcomm.server.ConnMgr;
 import org.vanilladb.calvin.metadata.MetadataMgr;
+import org.vanilladb.calvin.recovery.CalvinLogMgr;
 import org.vanilladb.core.query.planner.Planner;
 import org.vanilladb.core.query.planner.QueryPlanner;
 import org.vanilladb.core.query.planner.UpdatePlanner;
@@ -46,6 +47,7 @@ public class Calvin extends VanillaDb{
 	
 	private static ConnMgr connMgr;
 	private static MetadataMgr metaMgr;
+	private static CalvinLogMgr calvinLogMgr;
 
 	public static void init(String dirName, int id) {
 		nodeId = id;
@@ -61,7 +63,7 @@ public class Calvin extends VanillaDb{
 //		initPartitionMetaMgr();
 //		initScheduler();
 		initConnMgr(nodeId);
-//		initDdLogMgr();
+		initCalvinLogMgr();
 	}
 	
 	public static void init(String dirName, int id, StoredProcedureFactory factory) {
@@ -78,7 +80,7 @@ public class Calvin extends VanillaDb{
 		initMetaMgr();
 //		initScheduler();
 		initConnMgr(nodeId);
-//		initDdLogMgr();
+		initCalvinLogMgr();
 	}
 	
 	/**
@@ -93,6 +95,10 @@ public class Calvin extends VanillaDb{
 		metaMgr = new MetadataMgr();
 	}
 	
+	static void initCalvinLogMgr() {
+		calvinLogMgr = new CalvinLogMgr();
+	}
+	
 	/**
 	 * getter
 	 */
@@ -103,6 +109,10 @@ public class Calvin extends VanillaDb{
 	
 	public static MetadataMgr metaMgr() {
 		return metaMgr;
+	}
+	
+	public static CalvinLogMgr calvinLogMgr() {
+		return calvinLogMgr;
 	}
 	
 	public static int server_id() {
