@@ -107,15 +107,15 @@ public abstract class CalvinStoredProcedure<H extends StoredProcedureParamHelper
 //			ccMgr.prepareSp(readKeysForLock, writeKeysForLock);
 //		}
 //
-//		public final RecordKey[] getReadSet() {
-//			return readKeysForLock;
-//		}
+		public final RecordKey[] getReadSet() {
+			return readKeysForLock;
+		}
+
+		public final RecordKey[] getWriteSet() {
+			return writeKeysForLock;
+		}
 //
-//		public final RecordKey[] getWriteSet() {
-//			return writeKeysForLock;
-//		}
-//
-//		public SpResultSet execute() {
+		public SpResultSet execute() {
 //			
 //			try {
 //				// Get conservative locks it has asked before
@@ -154,7 +154,8 @@ public abstract class CalvinStoredProcedure<H extends StoredProcedureParamHelper
 //			}
 //
 //			return paramHelper.createResultSet();
-//		} 
+			return new SpResultSet(false, null, null); //to be deleted
+		} 
 		
 		public boolean isReadOnly() {
 			return paramHelper.isReadOnly();
