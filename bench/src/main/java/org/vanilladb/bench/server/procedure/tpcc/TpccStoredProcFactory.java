@@ -16,6 +16,8 @@
 package org.vanilladb.bench.server.procedure.tpcc;
 
 import org.vanilladb.bench.benchmarks.tpcc.TpccTransactionType;
+import org.vanilladb.calvin.scheduler.CalvinStoredProcedure;
+import org.vanilladb.calvin.scheduler.CalvinStoredProcedureFactory;
 import org.vanilladb.core.sql.storedprocedure.StoredProcedure;
 import org.vanilladb.core.sql.storedprocedure.StoredProcedureFactory;
 

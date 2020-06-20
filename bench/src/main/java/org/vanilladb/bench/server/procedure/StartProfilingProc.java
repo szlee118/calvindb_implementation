@@ -15,18 +15,23 @@
  *******************************************************************************/
 package org.vanilladb.bench.server.procedure;
 
+import org.vanilladb.calvin.scheduler.CalvinStoredProcedure;
 import org.vanilladb.core.server.VanillaDb;
-import org.vanilladb.core.sql.storedprocedure.StoredProcedure;
 import org.vanilladb.core.sql.storedprocedure.StoredProcedureParamHelper;
 
-public class StartProfilingProc extends StoredProcedure<StoredProcedureParamHelper> {
+public class StartProfilingProc extends CalvinStoredProcedure<StoredProcedureParamHelper> {
 
-	public StartProfilingProc() {
-		super(StoredProcedureParamHelper.newDefaultParamHelper());
+	public StartProfilingProc(long txNum) {
+		super(txNum, StoredProcedureParamHelper.newDefaultParamHelper());
 	}
 
 	@Override
 	protected void executeSql() {
 		VanillaDb.initAndStartProfiler();
+	}
+
+	@Override
+	protected void prepareKeys() {
+		//do nothing
 	}
 }

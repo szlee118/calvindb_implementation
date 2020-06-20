@@ -23,7 +23,7 @@ public class CalvinScheduler extends Task{
 	
 	static {
 		try {
-			FACTORY_CLASS = Class.forName("org.vanilladb.calvin.scheduler.CalvinStoredProcedureFactory");
+			FACTORY_CLASS = Class.forName("org.vanilladb.bench.server.procedure.micro.MicrobenchStoredProcFactory");
 			if (FACTORY_CLASS == null)
 				throw new RuntimeException("Factory property is empty");
 		} catch (ClassNotFoundException e) {

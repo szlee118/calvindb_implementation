@@ -1,29 +1,31 @@
 package org.vanilladb.bench.server.procedure;
 
 import org.vanilladb.bench.ControlTransactionType;
-import org.vanilladb.core.sql.storedprocedure.StoredProcedure;
-import org.vanilladb.core.sql.storedprocedure.StoredProcedureFactory;
+import org.vanilladb.calvin.scheduler.CalvinStoredProcedure;
+import org.vanilladb.calvin.scheduler.CalvinStoredProcedureFactory;
 
-public class BasicStoredProcFactory implements StoredProcedureFactory {
+public class BasicStoredProcFactory implements CalvinStoredProcedureFactory {
 	
-	private StoredProcedureFactory underlayerFactory;
+	private CalvinStoredProcedureFactory underlayerFactory;
 	
-	public BasicStoredProcFactory(StoredProcedureFactory underlayerFactory) {
+	public BasicStoredProcFactory(CalvinStoredProcedureFactory underlayerFactory) {
 		this.underlayerFactory = underlayerFactory;
 	}
 
 	@Override
-	public StoredProcedure<?> getStroredProcedure(int pid) {
+	public CalvinStoredProcedure<?> getStoredProcedure(int pid, long txNum) {
 		ControlTransactionType txnType = ControlTransactionType.fromProcedureId(pid);
 		if (txnType != null) {
 			switch (txnType) {
 			case START_PROFILING:
-				return new StartProfilingProc();
+				return new StartProfilingProc(txNum);
 			case STOP_PROFILING:
-				return new StopProfilingProc();
+				return new StopProfilingProc(txNum);
 			}
 		}
 		
-		return underlayerFactory.getStroredProcedure(pid);
+		return underlayerFactory.getStoredProcedure(pid, txNum);
 	}
+
+
 }

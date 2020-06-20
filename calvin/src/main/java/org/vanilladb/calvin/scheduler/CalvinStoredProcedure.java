@@ -9,6 +9,7 @@ import java.util.Set;
 import org.vanilladb.calvin.server.Calvin;
 import org.vanilladb.calvin.sql.RecordKey;
 import org.vanilladb.core.remote.storedprocedure.SpResultSet;
+import org.vanilladb.core.sql.storedprocedure.ManuallyAbortException;
 import org.vanilladb.core.sql.storedprocedure.StoredProcedure;
 import org.vanilladb.core.sql.storedprocedure.StoredProcedureParamHelper;
 import org.vanilladb.core.storage.tx.Transaction;
@@ -177,6 +178,17 @@ public abstract class CalvinStoredProcedure<H extends StoredProcedureParamHelper
 			writeKeys.add(writeKey);
 		}
 		
+		protected H getParamHelper() {
+			return paramHelper;
+		}
+		
+		protected Transaction getTransaction() {
+			return tx;
+		}
+		
+		protected void abort(String Msg) {
+			throw new ManuallyAbortException(Msg);
+		}
 //		private void getConservativeLocks() {
 //			ConservativeOrderedCcMgr ccMgr = (ConservativeOrderedCcMgr) tx
 //					.concurrencyMgr();

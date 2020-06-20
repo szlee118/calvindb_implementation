@@ -17,14 +17,15 @@ package org.vanilladb.bench.server.procedure.micro;
 
 import org.vanilladb.bench.server.param.micro.MicroTxnProcParamHelper;
 import org.vanilladb.bench.server.procedure.StoredProcedureHelper;
+import org.vanilladb.calvin.scheduler.CalvinStoredProcedure;
 import org.vanilladb.core.query.algebra.Scan;
 import org.vanilladb.core.sql.storedprocedure.StoredProcedure;
 import org.vanilladb.core.storage.tx.Transaction;
 
-public class MicroTxnProc extends StoredProcedure<MicroTxnProcParamHelper> {
+public class MicroTxnProc extends CalvinStoredProcedure<MicroTxnProcParamHelper> {
 
-	public MicroTxnProc() {
-		super(new MicroTxnProcParamHelper());
+	public MicroTxnProc(long txNum) {
+		super(txNum, new MicroTxnProcParamHelper());
 	}
 
 	@Override
@@ -61,5 +62,11 @@ public class MicroTxnProc extends StoredProcedure<MicroTxnProcParamHelper> {
 				tx
 			);
 		}
+	}
+
+	@Override
+	protected void prepareKeys() {
+		// TODO Auto-generated method stub
+		
 	}
 }
