@@ -53,7 +53,6 @@ public class ConnMgr implements VanillaCommServerListener{
 //							StoredProcedureCall spc = (StoredProcedureCall) tom
 //									.getMessages()[i];
 //							spc.setTxNum(tom.getTotalOrderIdStart() + i);
-							Calvin.scheduler().schedule((SPRequest)message);
 //						}
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -91,11 +90,14 @@ public class ConnMgr implements VanillaCommServerListener{
 	public void onReceiveTotalOrderMessage(long serialNumber, Serializable message) {
 		System.out.println("Received a total order message: " + ((SPRequest)message).getRteId()
 				+ ", serial number: " + serialNumber);
+		SPRequest spr = (SPRequest)message;
+		spr.setTxNum(serialNumber);
+		Calvin.scheduler().schedule(spr);
 	}
 	
 	public void sendClientResponse(int clientId, int rteId, long txNum,
 			SpResultSet rs) {
-		// call the communication module to send the response back to client
+		// send the result back to client
 		ResultFromServer res = new ResultFromServer(clientId, rteId, txNum, rs);		
 		server.sendP2pMessage(ProcessType.CLIENT, clientId, res);
 	}

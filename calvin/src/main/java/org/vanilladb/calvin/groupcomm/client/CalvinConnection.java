@@ -48,11 +48,24 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-//		client.PFD();
 	}
 	
 	@Override
-	public void onReceiveP2pMessage(ProcessType senderType, int senderId, Serializable message) {
+	public synchronized void onReceiveP2pMessage(ProcessType senderType, int senderId, Serializable message) {
+		ResultFromServer rs = (ResultFromServer) message;
+		long txNum = rs.getTxNum();
+		if(rs.getClientId() == selfId) {
+			long oldTxNum = rteIdtoTxNum.get(rs.getRteId());
+			System.out.println("TxNum : "+ txNum);
+			System.out.println("old : " + oldTxNum);
+			//ensure the tx order is not disturbed
+			if(txNum > oldTxNum) {
+				System.out.println("push into txnToRes");
+				rteIdtoTxNum.put(rs.getRteId(), txNum);
+				txnToRes.put(txNum, rs);
+				notifyAll();
+			}
+		}
 		System.out.println("Received a P2P message from " + senderType + " " + senderId
 				+ ", message: " + message.toString());
 	}
@@ -86,6 +99,7 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 	//rteId -> txnNum
 	public synchronized SpResultSet callStoredProc(int rteId, int pid, Object... pars)
 			throws RemoteException {
+		System.out.println("call storeProc in calvinConnection...");
 		if(!rteIdtoTxNum.containsKey(rteId)) {
 			rteIdtoTxNum.put(rteId, -1L);
 		}
