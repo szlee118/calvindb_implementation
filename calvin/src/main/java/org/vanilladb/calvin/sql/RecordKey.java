@@ -18,10 +18,7 @@ import org.vanilladb.core.sql.predicate.Predicate;
 import org.vanilladb.core.sql.predicate.Term;
 
 public class RecordKey implements Serializable {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -958208157248894658L;
+	private static final long serialVersionUID = 8877L;
 	private String tableName;
 	private transient Map<String, Constant> keyEntryMap;
 
