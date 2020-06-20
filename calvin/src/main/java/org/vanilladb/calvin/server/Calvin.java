@@ -94,4 +94,9 @@ public class Calvin extends VanillaDb{
 	public static ConnMgr connMgr() {
 		return connMgr;
 	}
+	
+	public static int server_id() {
+		return nodeId;
+	}
+	
 }
