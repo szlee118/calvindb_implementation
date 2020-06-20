@@ -103,6 +103,7 @@ public class Calvin extends VanillaDb{
 	
 	static void initScheduler() {
 		scheduler = new CalvinScheduler();
+		taskMgr().runTask(scheduler);
 	}
 	
 	/**
