@@ -5,14 +5,15 @@ import java.util.logging.Logger;
 
 import org.vanilladb.bench.server.param.micro.TestbedLoaderParamHelper;
 import org.vanilladb.bench.server.procedure.StoredProcedureHelper;
+import org.vanilladb.calvin.scheduler.CalvinStoredProcedure;
 import org.vanilladb.core.query.algebra.Scan;
 import org.vanilladb.core.sql.storedprocedure.StoredProcedure;
 
-public class MicroCheckDatabaseProc extends StoredProcedure<TestbedLoaderParamHelper> {
+public class MicroCheckDatabaseProc extends CalvinStoredProcedure<TestbedLoaderParamHelper> {
 	private static Logger logger = Logger.getLogger(MicroCheckDatabaseProc.class.getName());
 	
-	public MicroCheckDatabaseProc() {
-		super(new TestbedLoaderParamHelper());
+	public MicroCheckDatabaseProc(long txNum) {
+		super(txNum, new TestbedLoaderParamHelper());
 	}
 
 	@Override
@@ -65,6 +66,12 @@ public class MicroCheckDatabaseProc extends StoredProcedure<TestbedLoaderParamHe
 			logger.fine("Checking items completed.");
 		
 		return true;
+	}
+
+	@Override
+	protected void prepareKeys() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

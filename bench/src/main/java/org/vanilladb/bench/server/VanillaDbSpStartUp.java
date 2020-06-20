@@ -22,6 +22,7 @@ import org.vanilladb.bench.BenchmarkerParameters;
 import org.vanilladb.bench.server.procedure.BasicStoredProcFactory;
 import org.vanilladb.bench.server.procedure.micro.MicrobenchStoredProcFactory;
 import org.vanilladb.bench.server.procedure.tpcc.TpccStoredProcFactory;
+import org.vanilladb.calvin.scheduler.CalvinStoredProcedureFactory;
 import org.vanilladb.calvin.server.Calvin;
 import org.vanilladb.core.remote.storedprocedure.SpStartUp;
 import org.vanilladb.core.server.VanillaDb;
@@ -35,7 +36,8 @@ public class VanillaDbSpStartUp implements SutStartUp {
 		if (logger.isLoggable(Level.INFO))
 			logger.info("initing...");
 		
-		Calvin.init(args[0], Integer.parseInt(args[1]), getStoredProcedureFactory());
+//		Calvin.init(args[0], Integer.parseInt(args[1]), getStoredProcedureFactory());
+		Calvin.init(args[0], Integer.parseInt(args[1]) );
 //		VanillaDb.init(args[0], getStoredProcedureFactory());
 		
 		if (logger.isLoggable(Level.INFO))
@@ -48,8 +50,8 @@ public class VanillaDbSpStartUp implements SutStartUp {
 //		}
 	}
 	
-	private StoredProcedureFactory getStoredProcedureFactory() {
-		StoredProcedureFactory factory = null;
+	private CalvinStoredProcedureFactory getStoredProcedureFactory() {
+		CalvinStoredProcedureFactory factory = null;
 		switch (BenchmarkerParameters.BENCH_TYPE) {
 		case MICRO:
 			if (logger.isLoggable(Level.INFO))
@@ -59,7 +61,7 @@ public class VanillaDbSpStartUp implements SutStartUp {
 		case TPCC:
 			if (logger.isLoggable(Level.INFO))
 				logger.info("using TPC-C stored procedures");
-			factory = new TpccStoredProcFactory();
+			//factory = new TpccStoredProcFactory();
 			break;
 		}
 		factory = new BasicStoredProcFactory(factory);

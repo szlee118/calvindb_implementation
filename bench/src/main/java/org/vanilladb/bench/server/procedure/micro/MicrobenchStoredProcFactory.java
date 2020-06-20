@@ -16,27 +16,30 @@
 package org.vanilladb.bench.server.procedure.micro;
 
 import org.vanilladb.bench.benchmarks.micro.MicrobenchTransactionType;
+import org.vanilladb.calvin.scheduler.CalvinStoredProcedure;
+import org.vanilladb.calvin.scheduler.CalvinStoredProcedureFactory;
 import org.vanilladb.core.sql.storedprocedure.StoredProcedure;
 import org.vanilladb.core.sql.storedprocedure.StoredProcedureFactory;
 
-public class MicrobenchStoredProcFactory implements StoredProcedureFactory {
+public class MicrobenchStoredProcFactory implements CalvinStoredProcedureFactory {
 
 	@Override
-	public StoredProcedure<?> getStroredProcedure(int pid) {
-		StoredProcedure<?> sp;
+	public CalvinStoredProcedure<?> getStoredProcedure(int pid, long txNum) {
+		CalvinStoredProcedure<?> sp;
 		switch (MicrobenchTransactionType.fromProcedureId(pid)) {
 		case TESTBED_LOADER:
-			sp = new MicroTestbedLoaderProc();
+			sp = new MicroTestbedLoaderProc(txNum);
 			break;
 		case CHECK_DATABASE:
-			sp = new MicroCheckDatabaseProc();
+			sp = new MicroCheckDatabaseProc(txNum);
 			break;
 		case MICRO_TXN:
-			sp = new MicroTxnProc();
+			sp = new MicroTxnProc(txNum);
 			break;
 		default:
 			throw new UnsupportedOperationException("The benchmarker does not recognize procedure " + pid + "");
 		}
 		return sp;
 	}
+
 }

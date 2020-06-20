@@ -21,19 +21,26 @@ import java.util.logging.Logger;
 import org.vanilladb.bench.benchmarks.tpcc.TpccConstants;
 import org.vanilladb.bench.server.param.micro.TestbedLoaderParamHelper;
 import org.vanilladb.bench.server.procedure.StoredProcedureHelper;
+import org.vanilladb.calvin.scheduler.CalvinStoredProcedure;
 import org.vanilladb.core.server.VanillaDb;
 import org.vanilladb.core.sql.storedprocedure.StoredProcedure;
 import org.vanilladb.core.storage.tx.Transaction;
 import org.vanilladb.core.storage.tx.recovery.CheckpointTask;
 import org.vanilladb.core.storage.tx.recovery.RecoveryMgr;
 
-public class MicroTestbedLoaderProc extends StoredProcedure<TestbedLoaderParamHelper> {
+public class MicroTestbedLoaderProc extends CalvinStoredProcedure<TestbedLoaderParamHelper> {
 	private static Logger logger = Logger.getLogger(MicroTestbedLoaderProc.class.getName());
 	
-	public MicroTestbedLoaderProc() {
-		super(new TestbedLoaderParamHelper());
+	public MicroTestbedLoaderProc(long txNum) {
+		super(txNum, new TestbedLoaderParamHelper());
 	}
 
+	@Override
+	protected void prepareKeys() {
+		// do nothing
+	}
+	
+	
 	@Override
 	protected void executeSql() {
 		if (logger.isLoggable(Level.INFO))
@@ -119,4 +126,5 @@ public class MicroTestbedLoaderProc extends StoredProcedure<TestbedLoaderParamHe
 		if (logger.isLoggable(Level.FINE))
 			logger.info("Populating items completed.");
 	}
+
 }
