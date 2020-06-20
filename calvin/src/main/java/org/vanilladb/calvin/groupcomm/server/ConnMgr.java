@@ -91,13 +91,13 @@ public class ConnMgr implements VanillaCommServerListener{
 				+ ", serial number: " + serialNumber);
 	}
 	
-//	public void sendClientResponse(int clientId, int rteId, long txNum,
-//			SpResultSet rs) {
+	public void sendClientResponse(int clientId, int rteId, long txNum,
+			SpResultSet rs) {
 //		// call the communication module to send the response back to client
 //		P2pMessage p2pmsg = new P2pMessage(new ClientResponse(clientId, rteId,
 //				txNum, rs), clientId, ChannelType.CLIENT);
 //		serverAppl.sendP2pMessage(p2pmsg);
-//	}
+	}
 //
 //	public void callStoredProc(int pid, Object... pars) {
 //		StoredProcedureCall[] spcs = { new StoredProcedureCall(-1, myId, pid, pars) };
