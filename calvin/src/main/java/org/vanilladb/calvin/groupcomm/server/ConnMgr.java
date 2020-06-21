@@ -99,8 +99,8 @@ public class ConnMgr implements VanillaCommServerListener{
 
 	@Override
 	public void onReceiveTotalOrderMessage(long serialNumber, Serializable message) {
-		System.out.println("Received a total order message: " + ((SPRequest)message).getRteId()
-				+ ", serial number: " + serialNumber);
+//		System.out.println("Received a total order message: " + ((SPRequest)message).getRteId()
+//				+ ", serial number: " + serialNumber);
 		SPRequest spr = (SPRequest)message;
 		spr.setTxNum(serialNumber);
 		Calvin.scheduler().schedule(spr);

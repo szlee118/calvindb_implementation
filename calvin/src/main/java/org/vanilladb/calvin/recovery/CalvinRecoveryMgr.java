@@ -53,28 +53,26 @@ public class CalvinRecoveryMgr extends RecoveryMgr{
 	}
 	
 	public static void logRequest(SPRequest spc) {
-		// TODO Commented for experiment
-//		spcLogQueue.add(spc);
+		spcLogQueue.add(spc);
 	}
 	
 	@Override
 	public void onTxCommit(Transaction tx) {
-		 //TODO Commented for experiment
-//		 if (!tx.isReadOnly()) {
-//			 // synchronized (lock) {
-//			 try {
-//				 spcLoggerLock.lock();
-//				 while (tx.getTransactionNumber() > lastLoggedTxn) {
-//					 try {
-//						 // spcLoggerSyncObj.wait();
-//						 spcLoggerCondition.await();
-//					 } catch (InterruptedException e) {
-//						 e.printStackTrace();
-//					 }
-//				 }
-//			 } finally {
-//				 spcLoggerLock.unlock();
-//			 }
-//		 }
+		 if (!tx.isReadOnly()) {
+			 // synchronized (lock) {
+			 try {
+				 spcLoggerLock.lock();
+				 while (tx.getTransactionNumber() > lastLoggedTxn) {
+					 try {
+						 // spcLoggerSyncObj.wait();
+						 spcLoggerCondition.await();
+					 } catch (InterruptedException e) {
+						 e.printStackTrace();
+					 }
+				 }
+			 } finally {
+				 spcLoggerLock.unlock();
+			 }
+		 }
 	}
 }

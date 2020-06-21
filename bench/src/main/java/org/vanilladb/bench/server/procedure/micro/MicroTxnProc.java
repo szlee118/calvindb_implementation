@@ -40,7 +40,7 @@ public class MicroTxnProc extends CalvinStoredProcedure<MicroTxnProcParamHelper>
 
 	@Override
 	protected void executeSql() {
-		System.out.println("executesql in microTxnProc");
+//		System.out.println("executesql in microTxnProc");
 		//TODO : change to calvin style
 		MicroTxnProcParamHelper paramHelper = getParamHelper();
 		Transaction tx = getTransaction();
@@ -83,23 +83,7 @@ public class MicroTxnProc extends CalvinStoredProcedure<MicroTxnProcParamHelper>
 			cm.update(key, rec, tx);
 		}
 
-		// UPDATE item SET i_price = ...  WHERE i_id = ...
-//		int[] writeItemIds = paramHelper.getWriteItemId();
-//		double[] newItemPrices = paramHelper.getNewItemPrice();
-//		for (int i = 0; i < writeItemIds.length; i++) {
-//			// Create a record key for writing
-//			Map<String, Constant> keyEntryMap = new HashMap<String, Constant>();
-//			keyEntryMap.put("i_id", new IntegerConstant(writeItemIds[i]));
-//			RecordKey key = new RecordKey("item", keyEntryMap);
-//
-//			// Create key-value pairs for writing
-//			CachedRecord rec = new CachedRecord();
-//			rec.setVal("i_price", new DoubleConstant(newItemPrices[i]));
-//			
-//			// Update the record
-//			cm.update(key, rec, tx);
-//		}
-		System.out.println("finish executesql in microTxnProc!!");
+//		System.out.println("finish executesql in microTxnProc!!");
 	}
 
 	@Override

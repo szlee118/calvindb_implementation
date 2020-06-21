@@ -53,18 +53,18 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 		long txNum = rs.getTxNum();
 		if(rs.getClientId() == selfId) {
 			long oldTxNum = rteIdtoTxNum.get(rs.getRteId());
-			System.out.println("TxNum : "+ txNum);
-			System.out.println("old : " + oldTxNum);
+//			System.out.println("TxNum : "+ txNum);
+//			System.out.println("old : " + oldTxNum);
 			//ensure the tx order is not disturbed
 			if(txNum > oldTxNum) {
-				System.out.println("push into txnToRes");
+//				System.out.println("push into txnToRes");
 				rteIdtoTxNum.put(rs.getRteId(), txNum);
 				txnToRes.put(txNum, rs);
 				notifyAll();
 			}
 		}
-		System.out.println("Received a P2P message from " + senderType + " " + senderId
-				+ ", message: " + message.toString());
+//		System.out.println("Received a P2P message from " + senderType + " " + senderId
+//				+ ", message: " + message.toString());
 	}
 	
 	@Override
@@ -81,8 +81,8 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 	}
 	
 	private synchronized void sendRequest() {
-		String message = String.format("Request #%d from client %d", count,
-				selfId);
+//		String message = String.format("Request #%d from client %d", count,
+//				selfId);
 		SPRequest req =  null;
 		if((req = spQueue.poll()) != null) {
 			client.sendP2pMessage(ProcessType.SERVER, 0, req);
@@ -94,7 +94,7 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 	//rteId -> txnNum
 	public synchronized SpResultSet callStoredProc(int rteId, int pid, Object... pars)
 			throws RemoteException {
-		System.out.println("call storeProc in calvinConnection...");
+//		System.out.println("call storeProc in calvinConnection...");
 		if(!rteIdtoTxNum.containsKey(rteId)) {
 			rteIdtoTxNum.put(rteId, -1L);
 		}
