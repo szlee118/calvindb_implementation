@@ -5,3 +5,7 @@
 # Eclipse project
 /**/.classpath
 /**/.project
+
+# for database dir
+copy_db.sh
+reset_db.sh
