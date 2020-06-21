@@ -16,9 +16,8 @@ static Map<TupleKey, CachedRecord> tupleMap = new ConcurrentHashMap<TupleKey, Ca
 		if (nodeId == Calvin.server_id()) {
 			return LocalRecordMgr.read(key, tx);
 		} else {
-			System.out.print("i'm doing remote read!!");
 			TupleKey tupleKey = new TupleKey(tx.getTransactionNumber(), key);
-			System.out.println("remote read finish!!");
+
 			while(!tupleMap.containsKey(tupleKey));
 			
 			return (CachedRecord) tupleMap.get(tupleKey);

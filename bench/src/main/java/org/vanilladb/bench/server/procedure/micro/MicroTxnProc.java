@@ -27,6 +27,7 @@ import org.vanilladb.calvin.server.Calvin;
 import org.vanilladb.calvin.sql.RecordKey;
 import org.vanilladb.core.query.algebra.Scan;
 import org.vanilladb.core.sql.Constant;
+import org.vanilladb.core.sql.DoubleConstant;
 import org.vanilladb.core.sql.IntegerConstant;
 import org.vanilladb.core.sql.storedprocedure.StoredProcedure;
 import org.vanilladb.core.storage.tx.Transaction;
@@ -65,14 +66,22 @@ public class MicroTxnProc extends CalvinStoredProcedure<MicroTxnProcParamHelper>
 		}
 		
 		// UPDATE
-//		for (int idx = 0; idx < paramHelper.getWriteCount(); idx++) {
-//			int iid = paramHelper.getWriteItemId(idx);
-//			double newPrice = paramHelper.getNewItemPrice(idx);
-//			StoredProcedureHelper.executeUpdate(
-//				"UPDATE item SET i_price = " + newPrice + " WHERE i_id =" + iid,
-//				tx
-//			);
-//		}
+		for (int idx = 0; idx < paramHelper.getWriteCount(); idx++) {
+			int iid = paramHelper.getWriteItemId(idx);
+			double newPrice = paramHelper.getNewItemPrice(idx);
+			
+			// Create a record key for writing
+			Map<String, Constant> keyEntryMap = new HashMap<String, Constant>();
+			keyEntryMap.put("i_id", new IntegerConstant(iid));
+			RecordKey key = new RecordKey("item", keyEntryMap);
+			
+			// Create key-value pairs for writing
+			CachedRecord rec = new CachedRecord();
+			rec.setVal("i_price", new DoubleConstant(newPrice));
+			
+			// Update the record
+			cm.update(key, rec, tx);
+		}
 
 		// UPDATE item SET i_price = ...  WHERE i_id = ...
 //		int[] writeItemIds = paramHelper.getWriteItemId();

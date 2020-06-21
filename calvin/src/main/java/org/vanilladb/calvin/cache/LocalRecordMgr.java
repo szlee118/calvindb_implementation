@@ -1,7 +1,11 @@
 package org.vanilladb.calvin.cache;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.vanilladb.calvin.server.Calvin;
@@ -10,11 +14,15 @@ import org.vanilladb.core.query.algebra.Plan;
 import org.vanilladb.core.query.algebra.SelectPlan;
 import org.vanilladb.core.query.algebra.SelectScan;
 import org.vanilladb.core.query.algebra.TablePlan;
+import org.vanilladb.core.query.algebra.UpdateScan;
 import org.vanilladb.core.query.algebra.index.IndexSelectPlan;
 import org.vanilladb.core.query.planner.index.IndexSelector;
+import org.vanilladb.core.server.VanillaDb;
 import org.vanilladb.core.sql.Constant;
 import org.vanilladb.core.sql.ConstantRange;
 import org.vanilladb.core.sql.Schema;
+import org.vanilladb.core.storage.index.Index;
+import org.vanilladb.core.storage.index.SearchKey;
 import org.vanilladb.core.storage.metadata.index.IndexInfo;
 import org.vanilladb.core.storage.record.RecordId;
 import org.vanilladb.core.storage.tx.Transaction;
@@ -30,8 +38,9 @@ public class LocalRecordMgr {
 //				.getIndexInfo(key.getTableName(), tx);
 		Plan p = null; 
 		p = IndexSelector.selectByBestMatchedIndex(key.getTableName(), tp, key.getPredicate(), tx);
-		if(p == null)
+		if(p == null) {
 			p = new SelectPlan(tp, key.getPredicate());
+		}
 		else {
 			p = new SelectPlan(p, key.getPredicate());
 		}
@@ -65,12 +74,94 @@ public class LocalRecordMgr {
 	}
 
 	public static void update(RecordKey key, CachedRecord rec, Transaction tx) {
-//		TablePlan tp = new TablePlan(key.getTableName(), tx);
-//		Map<String, IndexInfo> indexInfoMap = VanillaDdDb.catalogMgr()
+		String tblName = key.getTableName();
+		TablePlan tp = new TablePlan(tblName, tx);
+//		Map<String, IndexInfo> indexInfoMap = Calvin.catalogMgr()
 //				.getIndexInfo(key.getTableName(), tx);
-//
+		Collection<String> targetflds = rec.getDirtyFldNames();
+		Plan p = null;
+		
+		//create indexSelectPlan if possible
+		p = IndexSelector.selectByBestMatchedIndex(tblName, tp, key.getPredicate()
+												, tx, targetflds);
+		if(p == null) {
+			p = new SelectPlan(tp, key.getPredicate());
+		}
+		else {
+			p = new SelectPlan(p, key.getPredicate());
+		}
+		
+		// Open all indexes associate with target fields
+		Set<Index> modifiedIndexes = new HashSet<Index>();
+		for (String fieldName : targetflds) {
+			List<IndexInfo> iiList = VanillaDb.catalogMgr().getIndexInfo(tblName, fieldName, tx);
+			for (IndexInfo ii : iiList)
+				modifiedIndexes.add(ii.open(tx));
+		}
+		
+		//open the scan
+		UpdateScan s = (UpdateScan) p.open();
+		s.beforeFirst();
+		int count = 0;
+		while(s.next()) {
+
+			// Construct a mapping from field names to values
+			Map<String, Constant> oldValMap = new HashMap<String, Constant>();
+			Map<String, Constant> newValMap = new HashMap<String, Constant>();
+			for (String fieldName : targetflds) {
+				Constant oldVal = s.getVal(fieldName);
+				Constant newVal = rec.getVal(fieldName);
+				
+				oldValMap.put(fieldName, oldVal);
+				newValMap.put(fieldName, newVal);
+				s.setVal(fieldName, newVal);
+			}
+			
+			RecordId rid = s.getRecordId();
+			
+			// Update the indexes
+			for (Index index : modifiedIndexes) {
+				// Construct a SearchKey for the old value
+				Map<String, Constant> fldValMap = new HashMap<String, Constant>();
+				for (String fldName : index.getIndexInfo().fieldNames()) {
+					Constant oldVal = oldValMap.get(fldName);
+					if (oldVal == null)
+						oldVal = s.getVal(fldName);
+					fldValMap.put(fldName, oldVal);
+				}
+				SearchKey oldKey = new SearchKey(index.getIndexInfo().fieldNames(), fldValMap);
+				
+				// Delete the old value from the index
+				index.delete(oldKey, rid, true);
+				
+				// Construct a SearchKey for the new value
+				fldValMap = new HashMap<String, Constant>();
+				for (String fldName : index.getIndexInfo().fieldNames()) {
+					Constant newVal = newValMap.get(fldName);
+					if (newVal == null)
+						newVal = s.getVal(fldName);
+					fldValMap.put(fldName, newVal);
+				}
+				SearchKey newKey = new SearchKey(index.getIndexInfo().fieldNames(), fldValMap);
+				
+				// Insert the new value to the index
+				index.insert(newKey, rid, true);
+				
+				index.close();
+			}
+			
+			count++;
+		
+		}
+		
+		// Close opened indexes and the record file
+		for (Index index : modifiedIndexes)
+			index.close();
+		s.close();
+				
+		VanillaDb.statMgr().countRecordUpdates(tblName, count);
+		
 //		// open all indexes associate with target fields
-//		Collection<String> targetflds = rec.getDirtyFldNames();
 //		HashMap<String, Index> targetIdxMap = new HashMap<String, Index>();
 //		for (String fld : targetflds) {
 //			IndexInfo ii = indexInfoMap.get(fld);
@@ -80,7 +171,7 @@ public class LocalRecordMgr {
 //		}
 //
 //		// create a IndexSelectPlan
-//		Plan p = new SelectPlan(tp, key.getPredicate());
+////		Plan p = new SelectPlan(tp, key.getPredicate());
 //		UpdateScan s = (UpdateScan) p.open();
 //		s.beforeFirst();
 //
