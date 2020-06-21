@@ -144,7 +144,7 @@ public abstract class CalvinStoredProcedure<H extends StoredProcedureParamHelper
 //					performTransactionLogic();
 //
 //				// The transaction finishes normally
-//				tx.commit();
+				tx.commit();
 //
 //			} catch (Exception e) {
 //				tx.rollback();
@@ -154,8 +154,12 @@ public abstract class CalvinStoredProcedure<H extends StoredProcedureParamHelper
 //				((CalvinCacheMgr)VanillaDdDb.cacheMgr()).cleanCachedTuples(tx);
 //			}
 //
+			
 //			return paramHelper.createResultSet();
-			return new SpResultSet(false, null, null); //to be deleted
+			return new SpResultSet(
+					true, //to be modified
+					paramHelper.getResultSetSchema(), 
+					paramHelper.newResultSetRecord()); 
 		} 
 		
 		public boolean isReadOnly() {
