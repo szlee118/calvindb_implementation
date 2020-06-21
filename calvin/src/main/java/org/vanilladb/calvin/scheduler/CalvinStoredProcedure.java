@@ -6,7 +6,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.vanilladb.calvin.cache.CachedRecord;
+import org.vanilladb.calvin.cache.CalvinCacheMgr;
 import org.vanilladb.calvin.concurrency.CalvinConcurrencyMgr;
+import org.vanilladb.calvin.groupcomm.KeytoRecSet;
+import org.vanilladb.calvin.groupcomm.server.ConnMgr;
 import org.vanilladb.calvin.server.Calvin;
 import org.vanilladb.calvin.sql.RecordKey;
 import org.vanilladb.core.remote.storedprocedure.SpResultSet;
@@ -115,49 +119,45 @@ public abstract class CalvinStoredProcedure<H extends StoredProcedureParamHelper
 		public final RecordKey[] getWriteSet() {
 			return writeKeysForLock;
 		}
-//
+
 		public SpResultSet execute() {
-//			
-//			try {
-//				// Get conservative locks it has asked before
+			boolean iscommited = false;  
+			try {
+				// Get conservative locks it has asked before
 				getConservativeLocks();
-//
-//				// phase 2: Perform local reads
-//				TupleSet ts = new TupleSet(-1);
-//				CalvinCacheMgr cm = (CalvinCacheMgr) VanillaDdDb.cacheMgr();
-//				for (RecordKey localReadKey : localReadKeys){
-//					CachedRecord rec = cm.read(localReadKey, tx);
-//					ts.addTuple(localReadKey, txNum, txNum, rec);
-//				}
-//				
-//				// phase 3: Serve remote reads
-//				ConnectionMgr connMgr = VanillaDdDb.connectionMgr();
-//				if (localReadKeys.isEmpty() == false) {
-//					for (int partitionId: activeParticipants)
-//						if (partitionId != serverId)
-//							connMgr.pushTupleSet(partitionId, ts);
-//				}
-//				
-//				// Execute transaction
-//				// phase 5: tx logic execution and applying writes
-//				if (activeParticipants.contains(serverId))
-//					performTransactionLogic();
-//
-//				// The transaction finishes normally
+
+				// phase 2: Perform local reads
+				KeytoRecSet ts = new KeytoRecSet(-1);
+				CalvinCacheMgr cm = Calvin.cacheMgr();
+				for (RecordKey localReadKey : localReadKeys){
+					CachedRecord rec = cm.read(localReadKey, tx);
+					ts.addTuple(localReadKey, txNum, txNum, rec);
+				}
+				
+				// phase 3: Serve remote reads
+				ConnMgr connMgr = Calvin.connMgr();
+				if (localReadKeys.isEmpty() == false) {
+					for (int partitionId: activeParticipants)
+						if (partitionId != serverId)
+							connMgr.pushTupleSet(partitionId, ts);
+				}
+				
+				// Execute transaction
+				// phase 5: tx logic execution and applying writes
+				if (activeParticipants.contains(serverId))
+					executeSql();
+
+				// The transaction finishes normally
 				tx.commit();
-//
-//			} catch (Exception e) {
-//				tx.rollback();
-//				paramHelper.setCommitted(false);
-//				e.printStackTrace();
-//			} finally {
-//				((CalvinCacheMgr)VanillaDdDb.cacheMgr()).cleanCachedTuples(tx);
-//			}
-//
-			
-//			return paramHelper.createResultSet();
+				iscommited = true;
+			} catch (Exception e) {
+				tx.rollback();
+				e.printStackTrace();
+			} finally {
+				((CalvinCacheMgr)Calvin.cacheMgr()).cleanCachedTuples(tx);
+			}
 			return new SpResultSet(
-					true, //to be modified
+					iscommited, 
 					paramHelper.getResultSetSchema(), 
 					paramHelper.newResultSetRecord()); 
 		} 

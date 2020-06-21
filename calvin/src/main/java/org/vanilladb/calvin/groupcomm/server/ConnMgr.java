@@ -6,6 +6,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.vanilladb.calvin.groupcomm.KeytoRec;
+import org.vanilladb.calvin.groupcomm.KeytoRecSet;
 import org.vanilladb.calvin.groupcomm.ResultFromServer;
 import org.vanilladb.calvin.groupcomm.SPRequest;
 import org.vanilladb.calvin.server.Calvin;
@@ -84,6 +86,18 @@ public class ConnMgr implements VanillaCommServerListener{
 				e.printStackTrace();
 			}
 		}
+		else if(senderType == ProcessType.SERVER) {
+			//collect remote read
+			
+			if(message.getClass().equals(KeytoRecSet.class)) {
+				KeytoRecSet krs = (KeytoRecSet) message;
+				for (KeytoRec kr: krs.getTupleSet()) {
+					Calvin.cacheMgr().addCacheTuple(kr);
+				}
+			}
+			else 
+				throw new IllegalArgumentException("shoul be KeytoRecSet");
+		}
 	}
 
 	@Override
@@ -107,10 +121,9 @@ public class ConnMgr implements VanillaCommServerListener{
 //		serverAppl.sendTotalOrderRequest(spcs);
 //	}
 //
-//	public void pushTupleSet(int nodeId, TupleSet reading) {
-//		P2pMessage p2pmsg = new P2pMessage(reading, nodeId, ChannelType.SERVER);
-//		serverAppl.sendP2pMessage(p2pmsg);
-//	}
+	public void pushTupleSet(int nodeId, KeytoRecSet reading) {
+		server.sendP2pMessage(ProcessType.SERVER, nodeId, reading);
+	}
 
 //	@Override
 //	public void onRecvServerP2pMessage(P2pMessage p2pmsg) {

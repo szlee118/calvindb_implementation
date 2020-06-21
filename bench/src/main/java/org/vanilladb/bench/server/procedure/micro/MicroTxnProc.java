@@ -20,7 +20,10 @@ import java.util.Map;
 
 import org.vanilladb.bench.server.param.micro.MicroTxnProcParamHelper;
 import org.vanilladb.bench.server.procedure.StoredProcedureHelper;
+import org.vanilladb.calvin.cache.CachedRecord;
+import org.vanilladb.calvin.cache.CalvinCacheMgr;
 import org.vanilladb.calvin.scheduler.CalvinStoredProcedure;
+import org.vanilladb.calvin.server.Calvin;
 import org.vanilladb.calvin.sql.RecordKey;
 import org.vanilladb.core.query.algebra.Scan;
 import org.vanilladb.core.sql.Constant;
@@ -36,39 +39,67 @@ public class MicroTxnProc extends CalvinStoredProcedure<MicroTxnProcParamHelper>
 
 	@Override
 	protected void executeSql() {
+		System.out.println("executesql in microTxnProc");
 		//TODO : change to calvin style
 		MicroTxnProcParamHelper paramHelper = getParamHelper();
 		Transaction tx = getTransaction();
+		CalvinCacheMgr cm = Calvin.cacheMgr();
 		
 		// SELECT
 		for (int idx = 0; idx < paramHelper.getReadCount(); idx++) {
 			int iid = paramHelper.getReadItemId(idx);
-			Scan s = StoredProcedureHelper.executeQuery(
-				"SELECT i_name, i_price FROM item WHERE i_id = " + iid,
-				tx
-			);
-			s.beforeFirst();
-			if (s.next()) {
-				String name = (String) s.getVal("i_name").asJavaVal();
-				double price = (Double) s.getVal("i_price").asJavaVal();
+			// Create a record key for reading
+			Map<String, Constant> keyEntryMap = new HashMap<String, Constant>();
+			keyEntryMap.put("i_id", new IntegerConstant(iid));
+			RecordKey key = new RecordKey("item", keyEntryMap);
+			
+			//read the record
+			CachedRecord rec = cm.read(key, tx);
+			
+			//write into paramHelper
+			String name = (String) rec.getVal("i_name").asJavaVal();
+			double price = (Double) rec.getVal("i_price").asJavaVal();
+			paramHelper.setItemName(name, idx);
+			paramHelper.setItemPrice(price, idx);
+//			if (s.next()) {
+//				String name = (String) s.getVal("i_name").asJavaVal();
+//				double price = (Double) s.getVal("i_price").asJavaVal();
+//
+//				paramHelper.setItemName(name, idx);
+//				paramHelper.setItemPrice(price, idx);
+//			} else
+//				throw new RuntimeException("Cloud not find item record with i_id = " + iid);
+//			s.close();
 
-				paramHelper.setItemName(name, idx);
-				paramHelper.setItemPrice(price, idx);
-			} else
-				throw new RuntimeException("Cloud not find item record with i_id = " + iid);
-
-			s.close();
 		}
 		
 		// UPDATE
-		for (int idx = 0; idx < paramHelper.getWriteCount(); idx++) {
-			int iid = paramHelper.getWriteItemId(idx);
-			double newPrice = paramHelper.getNewItemPrice(idx);
-			StoredProcedureHelper.executeUpdate(
-				"UPDATE item SET i_price = " + newPrice + " WHERE i_id =" + iid,
-				tx
-			);
-		}
+//		for (int idx = 0; idx < paramHelper.getWriteCount(); idx++) {
+//			int iid = paramHelper.getWriteItemId(idx);
+//			double newPrice = paramHelper.getNewItemPrice(idx);
+//			StoredProcedureHelper.executeUpdate(
+//				"UPDATE item SET i_price = " + newPrice + " WHERE i_id =" + iid,
+//				tx
+//			);
+//		}
+
+		// UPDATE item SET i_price = ...  WHERE i_id = ...
+//		int[] writeItemIds = paramHelper.getWriteItemId();
+//		double[] newItemPrices = paramHelper.getNewItemPrice();
+//		for (int i = 0; i < writeItemIds.length; i++) {
+//			// Create a record key for writing
+//			Map<String, Constant> keyEntryMap = new HashMap<String, Constant>();
+//			keyEntryMap.put("i_id", new IntegerConstant(writeItemIds[i]));
+//			RecordKey key = new RecordKey("item", keyEntryMap);
+//
+//			// Create key-value pairs for writing
+//			CachedRecord rec = new CachedRecord();
+//			rec.setVal("i_price", new DoubleConstant(newItemPrices[i]));
+//			
+//			// Update the record
+//			cm.update(key, rec, tx);
+//		}
+		System.out.println("finish executesql in microTxnProc!!");
 	}
 
 	@Override

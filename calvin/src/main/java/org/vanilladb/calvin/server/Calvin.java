@@ -8,6 +8,7 @@ import java.sql.Connection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.vanilladb.calvin.cache.CalvinCacheMgr;
 import org.vanilladb.calvin.groupcomm.server.ConnMgr;
 import org.vanilladb.calvin.metadata.MetadataMgr;
 import org.vanilladb.calvin.recovery.CalvinLogMgr;
@@ -50,6 +51,7 @@ public class Calvin extends VanillaDb{
 	private static MetadataMgr metaMgr;
 	private static CalvinLogMgr calvinLogMgr;
 	private static CalvinScheduler scheduler;
+	private static CalvinCacheMgr cacheMgr;
 
 	public static void init(String dirName, int id) {
 		nodeId = id;
@@ -61,7 +63,7 @@ public class Calvin extends VanillaDb{
 		VanillaDb.init(dirName);
 		
 		// initialize Calvin modules
-//		initCacheMgr();
+		initCacheMgr();
 		initMetaMgr();
 		initScheduler();
 		initConnMgr(nodeId);
@@ -77,8 +79,8 @@ public class Calvin extends VanillaDb{
 		// initialize core modules
 		VanillaDb.init(dirName, factory);
 		
-		// initialize DD modules
-//		initCacheMgr();
+		// initialize Calvin modules
+		initCacheMgr();
 		initMetaMgr();
 		initScheduler();
 		initConnMgr(nodeId);
@@ -106,6 +108,10 @@ public class Calvin extends VanillaDb{
 		taskMgr().runTask(scheduler);
 	}
 	
+	static void initCacheMgr() {
+		cacheMgr = new CalvinCacheMgr();
+	}
+	
 	/**
 	 * getter
 	 */
@@ -124,6 +130,10 @@ public class Calvin extends VanillaDb{
 	
 	public static CalvinScheduler scheduler() {
 		return scheduler;
+	}
+	
+	public static CalvinCacheMgr cacheMgr() {
+		return cacheMgr;
 	}
 	
 	public static int server_id() {
