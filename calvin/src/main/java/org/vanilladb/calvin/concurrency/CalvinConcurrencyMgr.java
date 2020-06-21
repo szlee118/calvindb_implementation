@@ -51,7 +51,6 @@ public class CalvinConcurrencyMgr extends ConcurrencyMgr {
 		 * TODO: should take intension lock on tables? If the structure of
 		 * record file may change, the ix lock on table level is needed.
 		 */
-		System.out.println("i'm taking lock!!");
 		if (writeKeys != null)
 			for (RecordKey k : writeKeys) {
 				// lockTbl.ixLock(k.getTableName(), txNum);

@@ -102,7 +102,6 @@ public abstract class CalvinStoredProcedure<H extends StoredProcedureParamHelper
 		public void requestConservativeLocks() {
 			CalvinConcurrencyMgr ccMgr = (CalvinConcurrencyMgr) tx
 					.concurrencyMgr();
-
 			readKeysForLock = readKeys.toArray(new RecordKey[0]);
 			writeKeysForLock = writeKeys.toArray(new RecordKey[0]);
 
