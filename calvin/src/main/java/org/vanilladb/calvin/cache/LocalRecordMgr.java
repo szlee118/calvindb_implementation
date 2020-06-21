@@ -3,8 +3,10 @@ package org.vanilladb.calvin.cache;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -160,119 +162,107 @@ public class LocalRecordMgr {
 		s.close();
 				
 		VanillaDb.statMgr().countRecordUpdates(tblName, count);
-		
-//		// open all indexes associate with target fields
-//		HashMap<String, Index> targetIdxMap = new HashMap<String, Index>();
-//		for (String fld : targetflds) {
-//			IndexInfo ii = indexInfoMap.get(fld);
-//			Index idx = (ii == null) ? null : ii.open(tx);
-//			if (idx != null)
-//				targetIdxMap.put(fld, idx);
-//		}
-//
-//		// create a IndexSelectPlan
-////		Plan p = new SelectPlan(tp, key.getPredicate());
-//		UpdateScan s = (UpdateScan) p.open();
-//		s.beforeFirst();
-//
-//		RecordId pos = recordPosMap.get(key);
-//		boolean found = false;
-//
-//		if (pos != null) {
-//			s.moveToRecordId(pos);
-//			found = true;
-//		} else if (s.next())
-//			found = true;
-//
-//		// the record key should identifies one record uniquely
-//		if (found) {
-//			Constant newval, oldval;
-//			for (String fld : targetflds) {
-//				newval = rec.getVal(fld);
-//				oldval = s.getVal(fld);
-//				if (newval.equals(oldval))
-//					continue;
-//				// update the appropriate index, if it exists
-//				Index idx = targetIdxMap.get(fld);
-//				if (idx != null) {
-//					RecordId rid = s.getRecordId();
-//					idx.delete(oldval, rid);
-//					idx.insert(newval, rid);
-//				}
-//				s.setVal(fld, newval);
-//			}
-//		}
-//		// close opened indexes
-//		for (String fld : targetflds) {
-//			Index idx = targetIdxMap.get(fld);
-//			if (idx != null)
-//				idx.close();
-//		}
-//		s.close();
 	}
 
 	public static void insert(RecordKey key, CachedRecord rec, Transaction tx) {
-//		String tblname = key.getTableName();
-//		Plan p = new TablePlan(tblname, tx);
-//		Map<String, IndexInfo> indexes = VanillaDdDb.catalogMgr().getIndexInfo(
-//				tblname, tx);
-//		Map<String, Constant> m = rec.getFldValMap();
-//
-//		// first, insert the record
-//		UpdateScan s = (UpdateScan) p.open();
-//		s.insert();
-//		RecordId rid = s.getRecordId();
-//
-//		// then modify each field, inserting an index record if appropriate
-//		for (Entry<String, Constant> e : m.entrySet()) {
-//			Constant val = e.getValue();
-//			if (val == null)
-//				continue;
-//			// first, insert into index
-//			IndexInfo ii = indexes.get(e.getKey());
-//			if (ii != null) {
-//				Index idx = ii.open(tx);
-//				idx.insert(val, rid);
-//				idx.close();
-//			}
-//			// insert into record file
-//			s.setVal(e.getKey(), val);
-//		}
-//		s.close();
-//		VanillaDdDb.statMgr().countRecordUpdates(tblname, 1);
+		String tblname = key.getTableName();
+		Plan p = new TablePlan(tblname, tx);
+		
+		// Construct a map from field names to values
+		Map<String, Constant> m = rec.getFldValMap();
+
+		// Insert the record into the record file
+		UpdateScan s = (UpdateScan) p.open();
+		s.insert();
+		for (Entry<String, Constant> e : m.entrySet()) {
+			s.setVal(e.getKey(), e.getValue());
+		}
+		RecordId rid = s.getRecordId();
+		s.close();
+		
+		// Insert the record to all corresponding indexes
+		Set<IndexInfo> indexes = new HashSet<IndexInfo>();
+		for (String fldname : rec.getFldNames()) {
+			List<IndexInfo> iis = VanillaDb.catalogMgr().getIndexInfo(tblname, fldname, tx);
+			indexes.addAll(iis);
+		}
+		
+		for (IndexInfo ii : indexes) {
+			Index idx = ii.open(tx);
+			idx.insert(new SearchKey(ii.fieldNames(), m), rid, true);
+			idx.close();
+		}
+
+		VanillaDb.statMgr().countRecordUpdates(tblname, 1);
 	}
 
 	public static void delete(RecordKey key, Transaction tx) {
-//		String tblname = key.getTableName();
-//		TablePlan tp = new TablePlan(tblname, tx);
+		String tblname = key.getTableName();
+		TablePlan tp = new TablePlan(tblname, tx);
 //		Map<String, IndexInfo> indexInfoMap = VanillaDdDb.catalogMgr()
 //				.getIndexInfo(tblname, tx);
-//
-//		Plan p = tp;
-//		for (String fld : key.getKeyFldSet()) {
-//			IndexInfo ii = indexInfoMap.get(fld);
-//			if (ii != null) {
-//				p = new IndexSelectPlan(tp, ii, ConstantRange.newInstance(key
-//						.getKeyVal(fld)), tx);
-//				break;
-//			}
-//		}
-//		p = new SelectPlan(p, key.getPredicate());
-//		UpdateScan s = (UpdateScan) p.open();
-//		s.beforeFirst();
-//		// the record key should identifies one record uniquely
-//		if (s.next()) {
-//			RecordId rid = s.getRecordId();
-//			// delete the record from every index
-//			for (String fldname : indexInfoMap.keySet()) {
-//				Constant val = s.getVal(fldname);
-//				Index idx = indexInfoMap.get(fldname).open(tx);
-//				idx.delete(val, rid);
-//				idx.close();
-//			}
-//			s.delete();
-//		}
-//		s.close();
-//		VanillaDdDb.statMgr().countRecordUpdates(tblname, 1);
+		Plan p = null;
+		
+		//Create a IndexSelectionPlan if possible
+		boolean usingIndex = false;
+		p = IndexSelector.selectByBestMatchedIndex(tblname, tp, key.getPredicate(), tx);
+		if (p == null)
+			p = new SelectPlan(tp, key.getPredicate());
+		else {
+			p = new SelectPlan(p, key.getPredicate());
+			usingIndex = true;
+		}
+		
+		// Retrieve all indexes
+		List<IndexInfo> allIndexes = new LinkedList<IndexInfo>();
+		Set<String> indexedFlds = VanillaDb.catalogMgr().getIndexedFields(tblname, tx);
+		
+		for (String indexedFld : indexedFlds) {
+			List<IndexInfo> iis = VanillaDb.catalogMgr().getIndexInfo(tblname, indexedFld, tx);
+			allIndexes.addAll(iis);
+		}
+		
+		// Open the scan
+		UpdateScan s = (UpdateScan) p.open();
+		int count = 0;
+		s.beforeFirst();
+		while (s.next()) {
+			RecordId rid = s.getRecordId();
+			
+			// Delete the record from every index
+			for (IndexInfo ii : allIndexes) {
+				// Construct a key-value map
+				Map<String, Constant> fldValMap = new HashMap<String, Constant>();
+				for (String fldName : ii.fieldNames())
+					fldValMap.put(fldName, s.getVal(fldName));
+				SearchKey skey = new SearchKey(ii.fieldNames(), fldValMap);
+				
+				// Delete from the index
+				Index index = ii.open(tx);
+				index.delete(skey, rid, true);
+				index.close();
+			}
+			
+			// Delete the record from the record file
+			s.delete();
+
+			/*
+			 * Re-open the index select scan to ensure the correctness of
+			 * next(). E.g., index block before delete the current slot ^:
+			 * [^5,5,6]. After the deletion: [^5,6]. When calling next() of
+			 * index select scan, current slot pointer will move forward,
+			 * [5,^6].
+			 */
+			if (usingIndex) {
+				s.close();
+				s = (UpdateScan) p.open();
+				s.beforeFirst();
+			}
+			
+			count++;
+		}
+		s.close();
+		
+		VanillaDb.statMgr().countRecordUpdates(tblname, count);
 	}
 }
