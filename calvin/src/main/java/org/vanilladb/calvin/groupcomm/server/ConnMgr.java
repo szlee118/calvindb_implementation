@@ -1,6 +1,8 @@
 package org.vanilladb.calvin.groupcomm.server;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
@@ -110,12 +112,16 @@ public class ConnMgr implements VanillaCommServerListener{
 		ResultFromServer res = new ResultFromServer(clientId, rteId, txNum, rs);		
 		server.sendP2pMessage(ProcessType.CLIENT, clientId, res);
 	}
-//
-//	public void callStoredProc(int pid, Object... pars) {
-//		StoredProcedureCall[] spcs = { new StoredProcedureCall(-1, myId, pid, pars) };
-//		serverAppl.sendTotalOrderRequest(spcs);
-//	}
-//
+
+	public void callStoredProc(int pid, Object... pars) {
+		SPRequest[] spcs = { new SPRequest(-1, selfId, pid, pars) };
+		List<Serializable> lspc = new ArrayList<Serializable>();
+		for (SPRequest spc : spcs) {
+			lspc.add(spc);
+		}
+		server.sendTotalOrderMessages(lspc);
+	}
+
 	public void pushTupleSet(int nodeId, KeytoRecSet reading) {
 		server.sendP2pMessage(ProcessType.SERVER, nodeId, reading);
 	}

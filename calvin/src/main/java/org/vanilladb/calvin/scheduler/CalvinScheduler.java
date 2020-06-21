@@ -5,6 +5,7 @@ import org.vanilladb.calvin.server.task.calvin.CalvinStoredProcedureTask;
 
 import java.util.concurrent.LinkedBlockingQueue;
 import org.vanilladb.calvin.groupcomm.SPRequest;
+import org.vanilladb.calvin.recovery.CalvinRecoveryMgr;
 import org.vanilladb.core.server.VanillaDb;
 
 /*public class scheduler {
@@ -64,8 +65,8 @@ public class CalvinScheduler extends Task{
 				sp.prepare(call.getPars());
 
 				// log request
-				//if (!sp.isReadOnly())
-			    //		CalvinRecoveryMgr.logRequest(call);
+				if (!sp.isReadOnly())
+			    		CalvinRecoveryMgr.logRequest(call);
 
 				if (sp.isParticipant()) {
 					// create a new task for multi-thread

@@ -31,7 +31,7 @@ public class CalvinRecoveryMgr extends RecoveryMgr{
 						new SPRecord(spc.getTxNum(), spc
 								.getClientId(), spc.getRteId(), spc.getPid(),
 								spc.getPars()).writeToLog();
-						synchronized (lock) {
+//						synchronized (lock) {
 							try {
 								spcLoggerLock.lock();
 								lastLoggedTxn = spc.getTxNum();
@@ -39,7 +39,7 @@ public class CalvinRecoveryMgr extends RecoveryMgr{
 							} finally {
 								spcLoggerLock.unlock();
 							}
-						}
+//						}
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}

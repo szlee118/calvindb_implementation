@@ -11,6 +11,7 @@ import org.vanilladb.calvin.cache.CalvinCacheMgr;
 import org.vanilladb.calvin.concurrency.CalvinConcurrencyMgr;
 import org.vanilladb.calvin.groupcomm.KeytoRecSet;
 import org.vanilladb.calvin.groupcomm.server.ConnMgr;
+import org.vanilladb.calvin.recovery.CalvinRecoveryMgr;
 import org.vanilladb.calvin.server.Calvin;
 import org.vanilladb.calvin.sql.RecordKey;
 import org.vanilladb.core.remote.storedprocedure.SpResultSet;
@@ -92,9 +93,8 @@ public abstract class CalvinStoredProcedure<H extends StoredProcedureParamHelper
 			boolean isReadOnly = paramHelper.isReadOnly();
 			this.tx = Calvin.txMgr().newTransaction(
 					Connection.TRANSACTION_SERIALIZABLE, isReadOnly, txNum);
-			//TODO : finish recoveryMgr  
-//			this.tx.addLifecycleListener(new DdRecoveryMgr(tx
-//					.getTransactionNumber()));
+			this.tx.addLifecycleListener(new CalvinRecoveryMgr(tx
+					.getTransactionNumber()));
 
 			prepareKeys();
 			

@@ -6,6 +6,7 @@ import static org.vanilladb.core.sql.Type.INTEGER;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.vanilladb.calvin.server.Calvin;
 import org.vanilladb.core.sql.BigIntConstant;
 import org.vanilladb.core.sql.Constant;
 import org.vanilladb.core.sql.IntegerConstant;
@@ -82,8 +83,7 @@ public class SPRecord implements CalvinLogRecord{
 	 */
 	@Override
 	public void redo(Transaction tx) {
-		//TODO: replay all SP request
-		
+		Calvin.connMgr().callStoredProc(pid, pars);
 	}
 
 	@Override
