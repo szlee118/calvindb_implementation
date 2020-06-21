@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.vanilladb.calvin.concurrency.CalvinConcurrencyMgr;
 import org.vanilladb.calvin.server.Calvin;
 import org.vanilladb.calvin.sql.RecordKey;
 import org.vanilladb.core.remote.storedprocedure.SpResultSet;
@@ -15,7 +16,7 @@ import org.vanilladb.core.sql.storedprocedure.StoredProcedureParamHelper;
 import org.vanilladb.core.storage.tx.Transaction;
 
 public abstract class CalvinStoredProcedure<H extends StoredProcedureParamHelper>{
-		private Transaction tx;
+		protected Transaction tx;
 		private long txNum;
 		protected H paramHelper;
 
@@ -98,15 +99,15 @@ public abstract class CalvinStoredProcedure<H extends StoredProcedureParamHelper
 		}
 		
 		//TODO : Should start from here(got to finish recoveryMgr now)
-//		public void requestConservativeLocks() {
-//			ConservativeOrderedCcMgr ccMgr = (ConservativeOrderedCcMgr) tx
-//					.concurrencyMgr();
-//
-//			readKeysForLock = readKeys.toArray(new RecordKey[0]);
-//			writeKeysForLock = writeKeys.toArray(new RecordKey[0]);
-//
-//			ccMgr.prepareSp(readKeysForLock, writeKeysForLock);
-//		}
+		public void requestConservativeLocks() {
+			CalvinConcurrencyMgr ccMgr = (CalvinConcurrencyMgr) tx
+					.concurrencyMgr();
+
+			readKeysForLock = readKeys.toArray(new RecordKey[0]);
+			writeKeysForLock = writeKeys.toArray(new RecordKey[0]);
+
+			ccMgr.prepareSp(readKeysForLock, writeKeysForLock);
+		}
 //
 		public final RecordKey[] getReadSet() {
 			return readKeysForLock;
@@ -120,7 +121,7 @@ public abstract class CalvinStoredProcedure<H extends StoredProcedureParamHelper
 //			
 //			try {
 //				// Get conservative locks it has asked before
-//				getConservativeLocks();
+				getConservativeLocks();
 //
 //				// phase 2: Perform local reads
 //				TupleSet ts = new TupleSet(-1);
@@ -193,10 +194,10 @@ public abstract class CalvinStoredProcedure<H extends StoredProcedureParamHelper
 		protected void abort(String Msg) {
 			throw new ManuallyAbortException(Msg);
 		}
-//		private void getConservativeLocks() {
-//			ConservativeOrderedCcMgr ccMgr = (ConservativeOrderedCcMgr) tx
-//					.concurrencyMgr();
-//			ccMgr.executeSp(readKeysForLock, writeKeysForLock);
-//		}
+		private void getConservativeLocks() {
+			CalvinConcurrencyMgr ccMgr = (CalvinConcurrencyMgr) tx
+					.concurrencyMgr();
+			ccMgr.executeSp(readKeysForLock, writeKeysForLock);
+		}
 		
 }

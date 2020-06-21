@@ -24,6 +24,6 @@ public class CalvinStoredProcedureTask extends StoredProcedureTask {
 	}
 	
 	public void lockConservatively() {
-		//csp.requestConservativeLocks();
+		csp.requestConservativeLocks();
 	}
 }
