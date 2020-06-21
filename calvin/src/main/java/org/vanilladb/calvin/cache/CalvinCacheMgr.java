@@ -3,7 +3,7 @@ package org.vanilladb.calvin.cache;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.vanilladb.calvin.groupcomm.KeyRec;
+import org.vanilladb.calvin.groupcomm.KeytoRec;
 import org.vanilladb.calvin.server.Calvin;
 import org.vanilladb.calvin.sql.RecordKey;
 import org.vanilladb.core.storage.tx.Transaction;
@@ -42,7 +42,7 @@ static Map<TupleKey, CachedRecord> tupleMap = new ConcurrentHashMap<TupleKey, Ca
 			LocalRecordMgr.delete(key, tx);
 	}
 	
-	public void addCacheTuple(KeyRec tuple) {
+	public void addCacheTuple(KeytoRec tuple) {
 		TupleKey tkey = new TupleKey(tuple.destTxNum, tuple.key);
 		tupleMap.put(tkey, tuple.rec);
 	}
