@@ -48,14 +48,9 @@ public class ConnMgr implements VanillaCommServerListener{
 			public void run() {
 				while (true) {
 					try {
+						//take msg from msgQueue and send total order message
 						Serializable message = msgQueue.take();
 						server.sendTotalOrderMessage(message);
-						//TODO call scheduler 
-//						for (int i = 0; i < tom.getMessages().length; ++i) {
-//							StoredProcedureCall spc = (StoredProcedureCall) tom
-//									.getMessages()[i];
-//							spc.setTxNum(tom.getTotalOrderIdStart() + i);
-//						}
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -124,32 +119,5 @@ public class ConnMgr implements VanillaCommServerListener{
 	public void pushTupleSet(int nodeId, KeytoRecSet reading) {
 		server.sendP2pMessage(ProcessType.SERVER, nodeId, reading);
 	}
-
-//	@Override
-//	public void onRecvServerP2pMessage(P2pMessage p2pmsg) {
-//		Object msg = p2pmsg.getMessage();
-//		if (msg.getClass().equals(TupleSet.class)) {
-//			TupleSet ts = (TupleSet) msg;
-//			for (Tuple t : ts.getTupleSet()) {
-//				if (VanillaDdDb.serviceType() == ServiceType.CALVIN) {
-//					// TODO: Cache remote records
-//					// phase 4: Collect remote reads
-//					((CalvinCacheMgr)VanillaDdDb.cacheMgr()).addCacheTuple(t);
-//				} else
-//					throw new IllegalArgumentException(
-//							"Service Type Not Found Exception");
-//			}
-//		} else
-//			throw new IllegalArgumentException();
-//	}
-//
-//	@Override
-//	public void onRecvServerTotalOrderedMessage(TotalOrderMessage tom) {
-//		try {
-//			tomQueue.put(tom);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//	}
 
 }
