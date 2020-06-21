@@ -33,9 +33,6 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 	private Map<Long, ResultFromServer> txnToRes= new HashMap<Long, ResultFromServer>();
 	private Map<Integer, Long> rteIdtoTxNum = new HashMap<Integer, Long>();
 //	private Queue<ClientResponse> respQueue = new LinkedList<ClientResponse>();
-//	private Queue<StoredProcedureCall> spcQueue = new LinkedList<StoredProcedureCall>();
-//	private Map<Long, ClientResponse> txnRespMap = new HashMap<Long, ClientResponse>();
-//	private Map<Integer, Long> rteIdtoTxNumMap = new HashMap<Integer, Long>();
 	
 	public CalvinConnection(int id) {
 		VanillaCommClient client = new VanillaCommClient(id, this);
@@ -84,12 +81,10 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 	}
 	
 	private synchronized void sendRequest() {
-		// TODO modify to SP request
 		String message = String.format("Request #%d from client %d", count,
 				selfId);
 		SPRequest req =  null;
 		if((req = spQueue.poll()) != null) {
-//			System.out.println("not get spQueue");
 			client.sendP2pMessage(ProcessType.SERVER, 0, req);
 		}
 	}
@@ -122,35 +117,4 @@ public class CalvinConnection implements VanillaCommClientListener, Runnable{
 		}
 	}
 
-	
-
-//	public synchronized SpResultSet callStoredProc(int rteId, int pid,
-//			Object... pars) {
-//		// block the calling thread until receiving corresponding request
-//		if (!rteIdtoTxNumMap.containsKey(rteId)) {
-//			rteIdtoTxNumMap.put(rteId, -1L);
-//		}
-//		StoredProcedureCall spc = new StoredProcedureCall(myId, rteId, pid,
-//				pars);
-//		spcQueue.add(spc);
-//		notifyAll();
-//		ClientResponse cr;
-//		try {
-//			while (true) {
-//				Long txNum = rteIdtoTxNumMap.get(rteId);
-//				if (txnRespMap.containsKey(txNum)) {
-//					cr = txnRespMap.remove(txNum);
-//					break;
-//				}
-//				wait();
-//			}
-//			return (SpResultSet) cr.getResultSet();
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//			throw new RuntimeException();
-//		}
-//	}
-
-	
-	
 }
