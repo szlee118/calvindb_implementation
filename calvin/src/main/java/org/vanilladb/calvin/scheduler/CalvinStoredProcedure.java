@@ -17,7 +17,7 @@ import org.vanilladb.core.storage.tx.Transaction;
 public abstract class CalvinStoredProcedure<H extends StoredProcedureParamHelper>{
 		private Transaction tx;
 		private long txNum;
-		private H paramHelper;
+		protected H paramHelper;
 
 		// Record keys
 		private List<RecordKey> readKeys = new ArrayList<RecordKey>();

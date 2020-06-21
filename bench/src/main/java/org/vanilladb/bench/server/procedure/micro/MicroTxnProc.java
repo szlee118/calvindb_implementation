@@ -15,10 +15,16 @@
  *******************************************************************************/
 package org.vanilladb.bench.server.procedure.micro;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.vanilladb.bench.server.param.micro.MicroTxnProcParamHelper;
 import org.vanilladb.bench.server.procedure.StoredProcedureHelper;
 import org.vanilladb.calvin.scheduler.CalvinStoredProcedure;
+import org.vanilladb.calvin.sql.RecordKey;
 import org.vanilladb.core.query.algebra.Scan;
+import org.vanilladb.core.sql.Constant;
+import org.vanilladb.core.sql.IntegerConstant;
 import org.vanilladb.core.sql.storedprocedure.StoredProcedure;
 import org.vanilladb.core.storage.tx.Transaction;
 
@@ -30,6 +36,7 @@ public class MicroTxnProc extends CalvinStoredProcedure<MicroTxnProcParamHelper>
 
 	@Override
 	protected void executeSql() {
+		//TODO : change to calvin style
 		MicroTxnProcParamHelper paramHelper = getParamHelper();
 		Transaction tx = getTransaction();
 		
@@ -66,7 +73,22 @@ public class MicroTxnProc extends CalvinStoredProcedure<MicroTxnProcParamHelper>
 
 	@Override
 	protected void prepareKeys() {
-		// TODO Auto-generated method stub
-		
+		// set read keys
+		for (int idx = 0; idx < paramHelper.getReadCount(); idx++) {
+			int iid = paramHelper.getReadItemId(idx);
+			Map<String, Constant> fldValMap = new HashMap<String, Constant>();
+			fldValMap.put("i_id", new IntegerConstant(iid));
+			RecordKey key = new RecordKey("item", fldValMap);
+			addReadKey(key);
+		}
+
+		// set write keys
+		for (int idx = 0; idx < paramHelper.getWriteCount(); idx++) {
+			int iid = paramHelper.getWriteItemId(idx);
+			Map<String, Constant> fldValMap = new HashMap<String, Constant>();
+			fldValMap.put("i_id", new IntegerConstant(iid));
+			RecordKey key = new RecordKey("item", fldValMap);
+			addWriteKey(key);
+		}
 	}
 }
