@@ -16,25 +16,7 @@ public class CalvinConcurrencyMgr extends ConcurrencyMgr {
 		txNum = txNumber;
 	}
 
-//	public void prepareSp(String[] readTables, String[] writeTables) {
-//		if (readTables != null)
-//			for (String rt : readTables)
-//				lockTbl.requestLock(rt, txNum);
-//
-//		if (writeTables != null)
-//			for (String wt : writeTables)
-//				lockTbl.requestLock(wt, txNum);
-//	}
 
-//	public void executeSp(String[] readTables, String[] writeTables) {
-//		if (writeTables != null)
-//			for (String s : writeTables)
-//				lockTbl.xLock(s, txNum);
-//
-//		if (readTables != null)
-//			for (String s : readTables)
-//				lockTbl.sLock(s, txNum);
-//	}
 
 	public void prepareSp(RecordKey[] readKeys, RecordKey[] writeKeys) {
 		if (readKeys != null)
@@ -47,38 +29,19 @@ public class CalvinConcurrencyMgr extends ConcurrencyMgr {
 	}
 
 	public void executeSp(RecordKey[] readKeys, RecordKey[] writeKeys) {
-		/*
-		 * TODO: should take intension lock on tables? If the structure of
-		 * record file may change, the ix lock on table level is needed.
-		 */
+
 		if (writeKeys != null)
 			for (RecordKey k : writeKeys) {
-				// lockTbl.ixLock(k.getTableName(), txNum);
 				lockTbl.xLock(k, txNum);
 			}
 
 		if (readKeys != null)
 			for (RecordKey k : readKeys) {
-				// lockTbl.isLock(k.getTableName(), txNum);
 				lockTbl.sLock(k, txNum);
 			}
 	}
 
-//	public void finishSp(RecordKey[] readKeys, RecordKey[] writeKeys) {
-//		if (writeKeys != null)
-//			for (RecordKey k : writeKeys) {
-//				// TODO: release table ixlock
-//				lockTbl.release(k, txNum,
-//						CalvinLockTable.LockType.X_LOCK);
-//			}
-//
-//		if (readKeys != null)
-//			for (RecordKey k : readKeys) {
-//				// TODO: release table islock
-//				lockTbl.release(k, txNum,
-//						CalvinLockTable.LockType.S_LOCK);
-//			}
-//	}
+
 
 	public void onTxCommit(Transaction tx) {
 		lockTbl.releaseAll(txNum,false);
@@ -91,23 +54,6 @@ public class CalvinConcurrencyMgr extends ConcurrencyMgr {
 	public void onTxEndStatement(Transaction tx) {
 		// do nothing
 	}
-
-//	public void prepareWriteBack(RecordKey... keys) {
-//		lockTbl.requestWriteBackLocks(keys, txNum);
-//	}
-
-//	public void executeWriteBack(RecordKey... keys) {
-//		if (keys != null)
-//			for (RecordKey k : keys)
-//				lockTbl.wbLock(k, txNum);
-//	}
-
-//	public void releaseWriteBackLock(RecordKey... keys) {
-//		if (keys != null)
-//			for (RecordKey k : keys)
-//				lockTbl.release(k, txNum,
-//						CalvinLockTable.LockType.WRITE_BACK_LOCK);
-//	}
 
 	@Override
 	public void modifyFile(String fileName) {
@@ -219,16 +165,6 @@ public class CalvinConcurrencyMgr extends ConcurrencyMgr {
 		readIndexBlks.remove(blk);
 	}
 
-//	public void releaseIndexLocks() {
-//		for (BlockId blk : readIndexBlks)
-//			lockTbl.release(blk, txNum,
-//					CalvinLockTable.LockType.S_LOCK);
-//		for (BlockId blk : writtenIndexBlks)
-//			lockTbl.release(blk, txNum,
-//					CalvinLockTable.LockType.X_LOCK);
-//		readIndexBlks.clear();
-//		writtenIndexBlks.clear();
-//	}
 
 	public void lockRecordFileHeader(BlockId blk) {
 		lockTbl.xLock(blk, txNum);
